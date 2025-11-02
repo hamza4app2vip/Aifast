@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="glass-shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.1)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Base background -->
+  <rect width="100%" height="100%" fill="url(#bg-gradient)" />
+  
+  <!-- Glass panel -->
+  <rect x="100" y="100" width="600" height="400" rx="20" ry="20" 
+        fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+  
+  <!-- Glass shine effect -->
+  <rect x="100" y="100" width="600" height="200" rx="20" ry="20" 
+        fill="url(#glass-shine)" opacity="0.3" />
+        
+  <!-- Face recognition grid -->
+  <g opacity="0.7">
+    <!-- Face outline -->
+    <rect x="250" y="150" width="300" height="300" rx="150" ry="150" 
+          fill="none" stroke="rgba(99,102,241,0.3)" stroke-width="2" stroke-dasharray="5,5" />
+    
+    <!-- Face landmarks -->
+    <circle cx="350" cy="250" r="5" fill="rgba(236,72,153,0.6)" />
+    <circle cx="450" cy="250" r="5" fill="rgba(236,72,153,0.6)" />
+    <circle cx="400" cy="300" r="5" fill="rgba(236,72,153,0.6)" />
+    <circle cx="350" cy="350" r="5" fill="rgba(236,72,153,0.6)" />
+    <circle cx="450" cy="350" r="5" fill="rgba(236,72,153,0.6)" />
+    
+    <!-- Connecting lines -->
+    <line x1="350" y1="250" x2="450" y2="250" stroke="rgba(99,102,241,0.4)" stroke-width="1" />
+    <line x1="350" y1="250" x2="400" y2="300" stroke="rgba(99,102,241,0.4)" stroke-width="1" />
+    <line x1="450" y1="250" x2="400" y2="300" stroke="rgba(99,102,241,0.4)" stroke-width="1" />
+    <line x1="400" y1="300" x2="350" y2="350" stroke="rgba(99,102,241,0.4)" stroke-width="1" />
+    <line x1="400" y1="300" x2="450" y2="350" stroke="rgba(99,102,241,0.4)" stroke-width="1" />
+    <line x1="350" y1="350" x2="450" y2="350" stroke="rgba(99,102,241,0.4)" stroke-width="1" />
+  </g>
+  
+  <!-- Emotion labels -->
+  <g font-family="Arial" font-size="12" fill="rgba(255,255,255,0.7)">
+    <text x="150" y="200">سعادة</text>
+    <text x="150" y="240">حزن</text>
+    <text x="150" y="280">غضب</text>
+    <text x="150" y="320">مفاجأة</text>
+    <text x="150" y="360">خوف</text>
+    <text x="150" y="400">حياد</text>
+    
+    <!-- Emotion bars -->
+    <rect x="200" y="190" width="30" height="10" fill="#4CAF50" />
+    <rect x="200" y="230" width="20" height="10" fill="#5C6BC0" />
+    <rect x="200" y="270" width="10" height="10" fill="#F44336" />
+    <rect x="200" y="310" width="25" height="10" fill="#FFD54F" />
+    <rect x="200" y="350" width="15" height="10" fill="#7E57C2" />
+    <rect x="200" y="390" width="40" height="10" fill="#78909C" />
+  </g>
+  
+  <!-- Data visualization elements -->
+  <g transform="translate(550, 200)">
+    <circle cx="0" cy="0" r="60" fill="none" stroke="rgba(99,102,241,0.5)" stroke-width="10" stroke-dasharray="189.5 189.5" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="0" to="379" dur="2s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="40" fill="none" stroke="rgba(139,92,246,0.5)" stroke-width="10" stroke-dasharray="126.3 126.3" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="0" to="252.6" dur="1.5s" repeatCount="indefinite" direction="reverse" />
+    </circle>
+    <circle cx="0" cy="0" r="20" fill="rgba(236,72,153,0.5)" />
+  </g>
+  
+  <!-- Decorative elements -->
+  <g opacity="0.3">
+    <circle cx="150" cy="450" r="3" fill="#fff" />
+    <circle cx="200" cy="480" r="2" fill="#fff" />
+    <circle cx="250" cy="460" r="4" fill="#fff" />
+    <circle cx="650" cy="150" r="3" fill="#fff" />
+    <circle cx="600" cy="120" r="2" fill="#fff" />
+    <circle cx="550" cy="140" r="4" fill="#fff" />
+  </g>
+</svg>
