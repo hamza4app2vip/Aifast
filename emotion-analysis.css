@@ -1,0 +1,236 @@
+
+/* تنسيق تبويبات تحليل المشاعر */
+
+.emotion-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.emotion-tab-btn {
+    background: none;
+    border: none;
+    color: #ddd;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.emotion-tab-btn i {
+    font-size: 18px;
+}
+
+.emotion-tab-btn:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.emotion-tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.emotion-tab-content {
+    display: none;
+    animation: fadeIn 0.5s;
+}
+
+.emotion-tab-content.active {
+    display: block;
+}
+
+/* تنسيق قسم تحليل الوجوه */
+.emotion-face-upload-container {
+    margin-bottom: 20px;
+}
+
+.emotion-face-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    margin: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.emotion-face-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+/* تنسيق قسم تحليل الصوت */
+.audio-input-container {
+    margin-bottom: 20px;
+}
+
+.audio-player-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.audio-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* تنسيق نتائج تحليل المشاعر */
+.emotion-results {
+    margin-top: 20px;
+}
+
+.result-header {
+    margin-bottom: 20px;
+}
+
+.result-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.emotion-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.emotion-label .label {
+    font-weight: 500;
+}
+
+.emotion-label .value {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.confidence-score {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 1s ease;
+}
+
+.result-details {
+    margin-top: 20px;
+}
+
+.emotion-chart-container {
+    margin: 20px 0;
+    height: 250px;
+    position: relative;
+}
+
+.emotion-explanation, .emotion-suggestions {
+    margin-top: 20px;
+}
+
+.emotion-explanation h4, .emotion-suggestions h4 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.emotion-suggestions-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.suggestion-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-right: 3px solid var(--primary-color);
+}
+
+/* تنسيق خيارات التحليل */
+.option-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.option-card:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.option-card.active {
+    background-color: rgba(0, 123, 255, 0.2);
+    border: 1px solid var(--primary-color);
+}
+
+.option-card i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.option-card h5 {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.option-card p {
+    margin: 0;
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .emotion-tabs {
+        flex-wrap: wrap;
+    }
+
+    .emotion-tab-btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+        padding: 10px 5px;
+        font-size: 14px;
+    }
+
+    .emotion-tab-btn i {
+        font-size: 16px;
+    }
+
+    .audio-player-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .audio-info {
+        justify-content: space-between;
+    }
+}

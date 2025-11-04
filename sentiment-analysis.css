@@ -1,0 +1,527 @@
+/* تنسيقات تحليل المشاعر */
+.sentiment-intro {
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    background: var(--glass-bg);
+    border-radius: var(--glass-border-radius);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--blur-strength));
+    -webkit-backdrop-filter: blur(var(--blur-strength));
+}
+
+.text-input-container {
+    position: relative;
+    width: 100%;
+}
+
+#sentiment-text {
+    width: 100%;
+    min-height: 180px;
+    padding: 1rem;
+    border-radius: var(--glass-border-radius);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--light-color);
+    font-size: 1rem;
+    resize: vertical;
+    transition: var(--transition);
+    backdrop-filter: blur(var(--blur-strength));
+    -webkit-backdrop-filter: blur(var(--blur-strength));
+}
+
+#sentiment-text:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}
+
+.text-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* خيارات تحليل المشاعر */
+.analysis-options h4 {
+    margin: 1.5rem 0 1rem;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.option-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.option-card[data-option] {
+    flex: 1;
+    min-width: 180px;
+    padding: 1rem;
+    border-radius: var(--glass-border-radius);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    backdrop-filter: blur(var(--blur-strength));
+    -webkit-backdrop-filter: blur(var(--blur-strength));
+}
+
+.option-card[data-option]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+    border-color: var(--primary-color);
+}
+
+.option-card[data-option].active {
+    background: var(--glass-card-bg);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+.option-card[data-option] i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.option-card[data-option] h5 {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.option-card[data-option] p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* نتائج تحليل المشاعر */
+.sentiment-results {
+    padding: 2rem;
+    background: var(--glass-bg);
+    border-radius: var(--glass-border-radius);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--blur-strength));
+    -webkit-backdrop-filter: blur(var(--blur-strength));
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+}
+
+.sentiment-results::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+    z-index: 1;
+}
+
+.sentiment-summary {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--glass-bg-darker);
+    border-radius: var(--glass-border-radius);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.sentiment-summary::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--glass-shine);
+    pointer-events: none;
+}
+
+.sentiment-overall {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.sentiment-circle-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sentiment-circle {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--primary-color) 0% var(--sentiment-positive, 33%),
+        var(--accent-color) var(--sentiment-positive, 33%) var(--sentiment-negative, 66%),
+        var(--secondary-color) var(--sentiment-negative, 66%) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25), 0 0 20px rgba(99, 102, 241, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.sentiment-circle:hover {
+    transform: scale(1.05);
+}
+
+.sentiment-circle::before {
+    content: "";
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: var(--dark-color);
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.sentiment-value {
+    position: relative;
+    font-size: 2rem;
+    font-weight: bold;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sentiment-label {
+    position: relative;
+    font-size: 1rem;
+    z-index: 1;
+    margin-top: -5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--light-color);
+}
+
+.sentiment-meter {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.meter-bar {
+    height: 25px;
+    background: var(--glass-bg-darker);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.meter-fill {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.meter-fill.positive {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    left: 0;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.meter-fill.negative {
+    background: linear-gradient(90deg, var(--accent-color), #ff4d6d);
+    right: 0;
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+
+.meter-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+.sentiment-score {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--glass-border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sentiment-score-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sentiment-score-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.sentiment-score-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.positive-score .sentiment-score-value {
+    color: var(--primary-color);
+}
+
+.negative-score .sentiment-score-value {
+    color: var(--accent-color);
+}
+
+.neutral-score .sentiment-score-value {
+    color: var(--secondary-color);
+}
+
+/* تفاصيل المشاعر */
+.sentiment-details {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--glass-bg-darker);
+    border-radius: var(--glass-border-radius);
+    border: 1px solid var(--glass-border);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sentiment-details::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--glass-shine);
+    pointer-events: none;
+}
+
+.sentiment-details h4 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sentiment-details h4::before {
+    content: "";
+    width: 30px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+.emotion-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.emotion-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--glass-border-radius);
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.emotion-bar-container:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.emotion-label {
+    min-width: 120px;
+    text-align: right;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emotion-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.emotion-bar {
+    flex: 1;
+    height: 18px;
+    background: var(--glass-bg-darker);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.emotion-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+    transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+}
+
+.emotion-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.emotion-value {
+    min-width: 50px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--light-color);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.3rem 0.5rem;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* شرح النتائج والاقتراحات */
+.sentiment-explanation,
+.sentiment-suggestions {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--glass-bg-darker);
+    border-radius: var(--glass-border-radius);
+    border: 1px solid var(--glass-border);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sentiment-explanation::after,
+.sentiment-suggestions::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--glass-shine);
+    pointer-events: none;
+}
+
+.sentiment-explanation h4,
+.sentiment-suggestions h4 {
+    margin-bottom: 1.2rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sentiment-explanation h4::before,
+.sentiment-suggestions h4::before {
+    content: "";
+    width: 30px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+.sentiment-explanation p,
+.sentiment-suggestions-text {
+    position: relative;
+    z-index: 1;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.suggestions-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.suggestion-item {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--glass-border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, background 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.suggestion-item:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.suggestion-icon {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+}
+
+.suggestion-content {
+    flex: 1;
+    line-height: 1.6;
+}
