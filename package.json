@@ -1,0 +1,11 @@
+{
+  "name": "env-static-server",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "node serve.mjs",
+    "start:port": "node -e \"process.env.PORT=process.argv[1];import('./serve.mjs')\""
+  }
+}
+

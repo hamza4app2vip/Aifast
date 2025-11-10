@@ -1,6 +1,41 @@
 // متغيرات عامة
-let apiKey = localStorage.getItem('openai_api_key') || '';
+let apiKey = '';
 const API_BASE_URL = "https://api.openai.com/v1";
+
+// تحميل مفتاح API عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    loadApiKeyFromEnv();
+});
+
+// دالة لتحميل مفتاح API من متغيرات البيئة
+function loadApiKeyFromEnv() {
+    // تحقق دائماً من متغيرات البيئة
+    if (window.getEnvVar) {
+        const envApiKey = window.getEnvVar('OPENAI_API_KEY');
+        if (envApiKey) {
+            apiKey = envApiKey;
+            localStorage.setItem('openai_api_key', apiKey);
+            console.log('API key loaded from .env file');
+            return true;
+        } else {
+            // إذا لم يتم العثور على مفتاح API في متغيرات البيئة، حاول من التخزين المحلي
+            const localApiKey = localStorage.getItem('openai_api_key');
+            if (localApiKey) {
+                apiKey = localApiKey;
+                console.log('API key loaded from localStorage');
+                return true;
+            } else {
+                if (typeof showNotification === 'function') {
+                    showNotification('لم يتم العثور على مفتاح API في ملف .env', 'error');
+                }
+                return false;
+            }
+        }
+    } else {
+        console.error('getEnvVar function is not available');
+        return false;
+    }
+}
 
 // عناصر DOM
 const tabButtons = document.querySelectorAll('.tab-btn');
@@ -138,6 +173,9 @@ async function makeAPIRequest(endpoint, payload) {
 
 // التحقق من وجود مفتاح API
 function checkApiKey() {
+    // محاولة تحميل مفتاح API من متغيرات البيئة أولاً
+    loadApiKeyFromEnv();
+    
     if (!apiKey) {
         showNotification('الرجاء إدخال مفتاح OpenAI API أولاً', 'warning');
         return false;
@@ -781,6 +819,8 @@ contactForm.addEventListener('submit', (e) => {
 
 // تهيئة الصفحة
 window.addEventListener('load', () => {
+    // تحميل مفتاح API من متغيرات البيئة
+    loadApiKeyFromEnv();
     // تعيين قيمة مفتاح API إذا كان موجودًا
     if (apiKey) {
         if (apiKeyInput) {

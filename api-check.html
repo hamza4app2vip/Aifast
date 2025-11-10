@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحقق من مفتاح API</title>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>التحقق من مفتاح API</h1>
+        <div id="result" class="result">جاري التحقق...</div>
+        <button id="check-btn" class="btn">تحقق مرة أخرى</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></script>
+    <script src="api-check.js"></script>
+    <script>
+        // إضافة حدث للزر
+        document.getElementById('check-btn').addEventListener('click', async function() {
+            document.getElementById('result').textContent = 'جاري التحقق...';
+            document.getElementById('result').className = 'result';
+            
+            const success = await checkApiKey();
+            
+            if (success) {
+                document.getElementById('result').textContent = 'تم العثور على مفتاح API بنجاح!';
+                document.getElementById('result').className = 'result success';
+            } else {
+                document.getElementById('result').textContent = 'لم يتم العثور على مفتاح API!';
+                document.getElementById('result').className = 'result error';
+            }
+        });
+    </script>
+</body>
+</html>

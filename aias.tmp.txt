@@ -1,41 +1,6 @@
 // متغيرات عامة
-let apiKey = '';
+let apiKey = localStorage.getItem('openai_api_key') || '';
 const API_BASE_URL = "https://api.openai.com/v1";
-
-// تحميل مفتاح API عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-    loadApiKeyFromEnv();
-});
-
-// دالة لتحميل مفتاح API من متغيرات البيئة
-function loadApiKeyFromEnv() {
-    // تحقق دائماً من متغيرات البيئة
-    if (window.getEnvVar) {
-        const envApiKey = window.getEnvVar('OPENAI_API_KEY');
-        if (envApiKey) {
-            apiKey = envApiKey;
-            localStorage.setItem('openai_api_key', apiKey);
-            console.log('API key loaded from .env file');
-            return true;
-        } else {
-            // إذا لم يتم العثور على مفتاح API في متغيرات البيئة، حاول من التخزين المحلي
-            const localApiKey = localStorage.getItem('openai_api_key');
-            if (localApiKey) {
-                apiKey = localApiKey;
-                console.log('API key loaded from localStorage');
-                return true;
-            } else {
-                if (typeof showNotification === 'function') {
-                    showNotification('لم يتم العثور على مفتاح API في ملف .env', 'error');
-                }
-                return false;
-            }
-        }
-    } else {
-        console.error('getEnvVar function is not available');
-        return false;
-    }
-}
 
 // عناصر DOM
 const tabButtons = document.querySelectorAll('.tab-btn');
@@ -159,25 +124,12 @@ async function makeAPIRequest(endpoint, payload) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            const errorMessage = errorData.error ? errorData.error.message : 'حدث خطأ في الاتصال بالخادم';
-            
-            // استخدام دالة معالجة الأخطاء العامة إذا كانت متاحة
-            if (typeof handleApiError === 'function') {
-                handleApiError(new Error(errorMessage));
-            }
-            
-            throw new Error(errorMessage);
+            throw new Error(errorData.error.message || 'حدث خطأ في الاتصال بالخادم');
         }
 
         return await response.json();
     } catch (error) {
         console.error('API Error:', error);
-        
-        // استخدام دالة معالجة الأخطاء العامة إذا كانت متاحة
-        if (typeof handleApiError === 'function') {
-            handleApiError(error);
-        }
-        
         throw error;
     } finally {
         hideLoading();
@@ -186,9 +138,6 @@ async function makeAPIRequest(endpoint, payload) {
 
 // التحقق من وجود مفتاح API
 function checkApiKey() {
-    // محاولة تحميل مفتاح API من متغيرات البيئة أولاً
-    loadApiKeyFromEnv();
-    
     if (!apiKey) {
         showNotification('الرجاء إدخال مفتاح OpenAI API أولاً', 'warning');
         return false;
@@ -348,14 +297,7 @@ async function transcribeAudio(audioBlob) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            const errorMessage = errorData.error ? errorData.error.message : 'حدث خطأ في الاتصال بالخادم';
-            
-            // استخدام دالة معالجة الأخطاء العامة إذا كانت متاحة
-            if (typeof handleApiError === 'function') {
-                handleApiError(new Error(errorMessage));
-            }
-            
-            throw new Error(errorMessage);
+            throw new Error(errorData.error.message || 'حدث خطأ في الاتصال بالخادم');
         }
 
         const data = await response.json();
@@ -395,14 +337,7 @@ ttsBtn.addEventListener('click', async () => {
 
         if (!response.ok) {
             const errorData = await response.json();
-            const errorMessage = errorData.error ? errorData.error.message : 'حدث خطأ في الاتصال بالخادم';
-            
-            // استخدام دالة معالجة الأخطاء العامة إذا كانت متاحة
-            if (typeof handleApiError === 'function') {
-                handleApiError(new Error(errorMessage));
-            }
-            
-            throw new Error(errorMessage);
+            throw new Error(errorData.error.message || 'حدث خطأ في الاتصال بالخادم');
         }
 
         const audioBlob = await response.blob();
@@ -496,38 +431,14 @@ const sentimentResult = document.getElementById('sentiment-result');
 const charCount = document.getElementById('char-count');
 const wordCount = document.getElementById('word-count');
 const sentimentOptions = document.querySelectorAll('.option-card[data-option]');
-const reanalyzeEmotionBtn = document.getElementById('reanalyze-emotion-btn');
 let selectedAnalysisType = 'basic';
-
-// إضافة وظيفة لزر إعادة التحليل
-if (reanalyzeEmotionBtn) {
-    reanalyzeEmotionBtn.addEventListener('click', () => {
-        // إخفاء النتائج الحالية
-        const emotionResults = document.querySelector('.emotion-results');
-        if (emotionResults) {
-            emotionResults.style.display = 'none';
-        }
-
-        // إظهار العنصر النائب
-        const placeholder = sentimentResult.querySelector('.placeholder');
-        if (placeholder) {
-            placeholder.style.display = 'block';
-        }
-
-        // التمرير إلى الأعلى
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
-}
 
 // عداد الأحرف والكلمات
 sentimentText.addEventListener('input', () => {
     const text = sentimentText.value;
     const chars = text.length;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-
+    
     charCount.textContent = `${chars} / 5000`;
     wordCount.textContent = `${words} كلمة`;
 });
@@ -548,130 +459,49 @@ analyzeSentimentBtn.addEventListener('click', async () => {
         showNotification('الرجاء إدخال نص لتحليله', 'warning');
         return;
     }
-
+    
     if (!checkApiKey()) return;
-
-    // تعطيل الزر وإظهار حالة التحميل
-    analyzeSentimentBtn.disabled = true;
-    analyzeSentimentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحليل...';
-
+    
     try {
         let prompt;
-
+        
         // تحديد نوع التحليل حسب الخيار المحدد
         if (selectedAnalysisType === 'basic') {
-            prompt = `قم بتحليل المشاعر في النص التالي بدقة عالية. حدد نسب المشاعر الثلاثة الرئيسية: الإيجابية، السلبية، والمحايدة. يجب أن تكون النسب المئوية دقيقة ومجموعها يساوي 100% بالضبط. قدم شرحاً موجزاً للنتيجة. النص: ${text}`;
+            prompt = `قم بتحليل المشاعر في النص التالي وحدد ما إذا كان إيجابياً، سلبياً، أو محايداً. قدم نتيجة على شكل نسب مئائية للمشاعر الثلاثة مع شرح موجز. النص: ${text}`;
         } else if (selectedAnalysisType === 'detailed') {
-            prompt = `قم بتحليل المشاعر في النص التالي بدقة فائقة. حدد نسب المشاعر التالية: السعادة، الحزن، الغضب، الخوف، المفاجأة، الاشمئزاز، الثقة، الحب، الترقب، بالإضافة إلى المشاعر الرئيسية (إيجابي، سلبي، محايد). يجب أن تكون النسب المئوية دقيقة جداً ومجموعها يساوي 100% بالضبط. قدم شرحاً مفصلاً للنتائج. النص: ${text}`;
+            prompt = `قم بتحليل المشاعر في النص التالي بدقة وحدد المشاعر المحددة مثل السعادة، الحزن، الغضب، الخوف، المفاجأة، الاشمئزاز، وغيرها. قدم النتائج على شكل نسب مئوية لكل مشعر مع شرح مفصل. النص: ${text}`;
         } else { // emotional
-            prompt = `قم بتحليل المشاعر والعواطف المعقدة في النص التالي بعمق. حدد المشاعر الأساسية والثانوية، مع تقديم نسب مئوية دقيقة جداً لكل مشعر. يجب أن يكون مجموع جميع النسب 100% بالضبط. قدم تحليلاً نفسياً عميقاً للدوافع العاطفية المحتملة والانفعالات الخفية. النص: ${text}`;
+            prompt = `قم بتحليل العواطف والانفعالات المعقدة في النص التالي. حدد المشاعر الأساسية والثانوية، وقدم تحليلاً عميقاً للدوافع العاطفية المحتملة. قدم النتائج على شكل نسب مئوية مع شرح مفصل. النص: ${text}`;
         }
-
+        
         const response = await makeAPIRequest('chat/completions', {
             model: 'gpt-4o',
             messages: [
-                { role: 'system', content: 'أنت محلل نفسي متخصص في تحليل المشاعر بدقة متناهية. يجب أن تقدم نتائج دقيقة بنسبة 100% ومجموع النسب المئوية يجب أن يكون 100% بالضبط. استخدم تحليلات كمية دقيقة للغاية. قدم النتائج بتنسيق JSON صالح.' },
-                { role: 'user', content: prompt + '\n\nمهم جداً: قدم النتائج بتنسيق JSON فقط، بدون أي نص إضافي قبل أو بعد. يجب أن يكون مجموع جميع النسب المئوية 100% بالضبط.' }
+                { role: 'system', content: 'أنت محلل نفساني خبير في تحليل المشاعر والعواطف في النصوص. قدم تحليلات دقيقة ومفصلة باللغة العربية. يجب أن تكون إجاباتك بتنسيق JSON صالح.' },
+                { role: 'user', content: prompt + '\n\nقدم النتائج بتنسيق JSON فقط، بدون أي نص إضافي. استخدم كلمة JSON في إجابتك.' }
             ],
             response_format: { type: "json_object" },
-            temperature: 0.1  // تقليل العشوائية لزيادة الدقة
+            temperature: 0.3
         });
-
+        
         // استخراج محتوى JSON من الاستجابة
         let responseText = response.choices[0].message.content;
-
+        
         // البحث عن محتوى JSON في الاستجابة
         let jsonMatch = responseText.match(/\{[\s\S]*\}/);
-
+        
         if (!jsonMatch) {
             throw new Error('لم يتم العثور على بيانات JSON صالحة في الاستجابة');
         }
-
+        
         let analysisData;
         try {
             analysisData = JSON.parse(jsonMatch[0]);
-
-            // التحقق من صحة النسب المئوية وتصحيحها
-            let totalPercentage = 0;
-            let emotions = {};
-
-            // استخلاص المشاعر والنسب
-            for (const key in analysisData) {
-                if (typeof analysisData[key] === 'number' && key !== 'explanation') {
-                    emotions[key] = analysisData[key];
-                    totalPercentage += analysisData[key];
-                }
-            }
-
-            // إذا لم يكن المجموع 100%، قم بتصحيح النسب
-            if (Math.abs(totalPercentage - 100) > 0.1) {
-                console.warn(`مجموع النسب المئوية: ${totalPercentage}%. سيتم تصحيحها إلى 100%`);
-
-                // تصحيح النسب لتكون مجموعها 100%
-                const correctionFactor = 100 / totalPercentage;
-                for (const key in emotions) {
-                    emotions[key] = Math.round(emotions[key] * correctionFactor * 10) / 10;
-                }
-
-                // إعادة حساب المجموع بعد التصحيح
-                let correctedTotal = 0;
-                for (const key in emotions) {
-                    correctedTotal += emotions[key];
-                }
-
-                // تعديل آخر لضمان أن المجموع 100%
-                const diff = 100 - correctedTotal;
-                if (Math.abs(diff) > 0.1) {
-                    // إضافة الفرق للعنصر الأكبر
-                    let maxKey = Object.keys(emotions).reduce((a, b) => emotions[a] > emotions[b] ? a : b);
-                    emotions[maxKey] = Math.round((emotions[maxKey] + diff) * 10) / 10;
-                }
-
-                // تحديث بيانات التحليل
-                for (const key in emotions) {
-                    analysisData[key] = emotions[key];
-                }
-            }
-
-            // التأكد من وجود المشاعر الرئيسية
-            if (!analysisData.positive && !analysisData.negative && !analysisData.neutral) {
-                // حساب المشاعر الرئيسية من المشاعر الفرعية
-                let positive = 0, negative = 0, neutral = 0;
-
-                if (analysisData.happiness || analysisData.love || analysisData.trust) {
-                    positive += (analysisData.happiness || 0) + (analysisData.love || 0) + (analysisData.trust || 0);
-                }
-
-                if (analysisData.sadness || analysisData.anger || analysisData.fear || analysisData.disgust) {
-                    negative += (analysisData.sadness || 0) + (analysisData.anger || 0) + (analysisData.fear || 0) + (analysisData.disgust || 0);
-                }
-
-                if (analysisData.neutral || analysisData.surprise || analysisData.anticipation) {
-                    neutral += (analysisData.neutral || 0) + (analysisData.surprise || 0) + (analysisData.anticipation || 0);
-                }
-
-                // إذا لم يتم حساب أي شيء، اجعلها محايدة
-                if (positive === 0 && negative === 0 && neutral === 0) {
-                    neutral = 100;
-                }
-
-                // تطبيع النسب لتكون مجموعها 100%
-                const total = positive + negative + neutral;
-                if (total > 0) {
-                    analysisData.positive = Math.round((positive / total) * 100 * 10) / 10;
-                    analysisData.negative = Math.round((negative / total) * 100 * 10) / 10;
-                    analysisData.neutral = Math.round((neutral / total) * 100 * 10) / 10;
-                } else {
-                    analysisData.positive = 33.3;
-                    analysisData.negative = 33.3;
-                    analysisData.neutral = 33.4;
-                }
-            }
         } catch (parseError) {
             console.error('Error parsing JSON:', parseError);
             throw new Error('فشل في تحليل بيانات JSON من الاستجابة');
         }
-
+        
         // عرض النتائج
         sentimentResult.querySelector('.placeholder').style.display = 'none';
         sentimentResult.querySelector('.sentiment-results').style.display = 'block';
@@ -698,23 +528,23 @@ analyzeSentimentBtn.addEventListener('click', async () => {
         if (sentimentSummary && typeof sentimentSummary.updateEmotions === 'function') {
             sentimentSummary.updateEmotions(emotionsData);
         }
-
+        
         // تحديث متغيرات CSS للدائرة
         document.documentElement.style.setProperty('--sentiment-positive', `${analysisData.positive}%`);
         document.documentElement.style.setProperty('--sentiment-negative', `${analysisData.negative}%`);
-
+        
         // إضافة أيقونات للمشاعر
         addEmotionIcons();
-
+        
         // إضافة أيقونات للاقتراحات
         addSuggestionIcons();
-
+        
         // تحديث ملخص المشاعر
         const sentimentValue = document.getElementById('sentiment-value');
         const sentimentLabel = document.getElementById('sentiment-label');
         const positiveMeter = document.getElementById('positive-meter');
         const negativeMeter = document.getElementById('negative-meter');
-
+        
         // تحديد المشاعر الرئيسية
         let mainSentiment, sentimentPercentage;
         if (analysisData.positive > analysisData.negative && analysisData.positive > analysisData.neutral) {
@@ -727,43 +557,42 @@ analyzeSentimentBtn.addEventListener('click', async () => {
             mainSentiment = 'محايد';
             sentimentPercentage = analysisData.neutral;
         }
-
+        
         if (sentimentValue) sentimentValue.textContent = `${sentimentPercentage}%`;
         if (sentimentLabel) sentimentLabel.textContent = mainSentiment;
-
+        
         // تحديث أشرطة المشاعر
         if (positiveMeter && positiveMeter.style) positiveMeter.style.width = `${analysisData.positive}%`;
         if (negativeMeter && negativeMeter.style) negativeMeter.style.width = `${analysisData.negative}%`;
-
+        
         // إضافة قسم النتائج المفصل
         addDetailedScores(analysisData);
-
+        
         // تحديث تفاصيل المشاعر
         const emotionBars = document.querySelector('.emotion-bars');
         emotionBars.innerHTML = '';
-        // اعتمد على القيم المطَبَّعة من ملخص المشاعر إن وجدت
-        const normalizedEmotions = (window.sentimentSummary && window.sentimentSummary.emotions) ? window.sentimentSummary.emotions : null;
-        const entriesForBars = normalizedEmotions ? Object.entries(normalizedEmotions).map(([k, e]) => [k, e.value]) : Object.entries(analysisData);
-        for (const [emotion, value] of entriesForBars) {
+        
+        // إضافة أشرطة المشاعر التفصيلية
+        for (const [emotion, value] of Object.entries(analysisData)) {
             if (emotion !== 'explanation' && emotion !== 'suggestions' && typeof value === 'number') {
                 const barContainer = document.createElement('div');
                 barContainer.className = 'emotion-bar-container';
-
+                
                 const barLabel = document.createElement('div');
                 barLabel.className = 'emotion-label';
                 barLabel.textContent = emotion;
-
+                
                 const bar = document.createElement('div');
                 bar.className = 'emotion-bar';
-
+                
                 const barFill = document.createElement('div');
                 barFill.className = 'emotion-fill';
                 barFill.style.width = `${value}%`;
-
+                
                 const barValue = document.createElement('div');
                 barValue.className = 'emotion-value';
                 barValue.textContent = `${value}%`;
-
+                
                 if (bar && barFill) bar.appendChild(barFill);
                 if (bar && barValue) bar.appendChild(barValue);
                 if (barContainer && barLabel) barContainer.appendChild(barLabel);
@@ -771,15 +600,15 @@ analyzeSentimentBtn.addEventListener('click', async () => {
                 if (emotionBars && barContainer) emotionBars.appendChild(barContainer);
             }
         }
-
+        
         // تحديث شرح النتائج
         const explanationText = document.getElementById('sentiment-explanation-text');
         explanationText.textContent = analysisData.explanation || 'لا يوجد شرح متاح';
-
+        
         // تحديث الاقتراحات
         const suggestionsText = document.getElementById('sentiment-suggestions-text');
         suggestionsText.innerHTML = '';
-
+        
         if (analysisData.suggestions && Array.isArray(analysisData.suggestions)) {
             analysisData.suggestions.forEach(suggestion => {
                 const suggestionItem = document.createElement('div');
@@ -788,27 +617,15 @@ analyzeSentimentBtn.addEventListener('click', async () => {
                 if (suggestionsText && suggestionItem) suggestionsText.appendChild(suggestionItem);
             });
         }
-
-        // إعادة تعيين زر التحليل بعد اكتمال التحليل بنجاح
-        if (analyzeSentimentBtn) {
-            analyzeSentimentBtn.disabled = false;
-            analyzeSentimentBtn.innerHTML = '<i class="fas fa-brain"></i> تحليل مشاعر النص';
-        }
-
+        
     } catch (error) {
         console.error('Error analyzing sentiment:', error);
         showNotification(`حدث خطأ في تحليل المشاعر: ${error.message}`, 'error');
-
+        
         // عرض رسالة خطأ في منطقة النتائج
         sentimentResult.querySelector('.placeholder').style.display = 'none';
         sentimentResult.querySelector('.sentiment-results').style.display = 'none';
         sentimentResult.innerHTML = `<div class="error">⚠ خطأ في تحليل المشاعر: ${error.message}</div>`;
-    } finally {
-        // إعادة تعيين زر التحليل
-        if (analyzeSentimentBtn) {
-            analyzeSentimentBtn.disabled = false;
-            analyzeSentimentBtn.innerHTML = '<i class="fas fa-brain"></i> تحليل مشاعر النص';
-        }
     }
 });
 
@@ -817,11 +634,11 @@ analyzeSentimentBtn.addEventListener('click', async () => {
 // إضافة أيقونات للمشاعر
 function addEmotionIcons() {
     const emotionLabels = document.querySelectorAll('.emotion-label');
-
+    
     emotionLabels.forEach(label => {
         const emotionName = label.textContent.trim();
         let iconClass = '';
-
+        
         // تحديد الأيقونة حسب نوع المشاعر
         if (emotionName.includes('سعادة') || emotionName.includes('فرح')) {
             iconClass = 'fa-smile';
@@ -844,7 +661,7 @@ function addEmotionIcons() {
         } else {
             iconClass = 'fa-meh';
         }
-
+        
         // إنشاء عنصر الأيقونة إذا لم يكن موجودًا
         if (!label.querySelector('.emotion-icon')) {
             const icon = document.createElement('div');
@@ -857,27 +674,27 @@ function addEmotionIcons() {
 // إضافة أيقونات للاقتراحات
 function addSuggestionIcons() {
     const suggestionsContainer = document.querySelector('.sentiment-suggestions-text');
-
+    
     if (!suggestionsContainer) return;
-
+    
     // تحويل النص إلى حاوية منظم
     if (!suggestionsContainer.classList.contains('suggestions-container')) {
         const suggestions = suggestionsContainer.textContent.trim().split(/\d+\.\s*/).filter(s => s.trim());
         suggestionsContainer.innerHTML = '';
         suggestionsContainer.classList.add('suggestions-container');
-
+        
         suggestions.forEach((suggestion, index) => {
             if (suggestion.trim()) {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
-
+                
                 const icon = document.createElement('div');
                 icon.className = 'suggestion-icon fas fa-lightbulb';
-
+                
                 const content = document.createElement('div');
                 content.className = 'suggestion-content';
                 content.textContent = suggestion.trim();
-
+                
                 if (item && icon) item.appendChild(icon);
                 if (item && content) item.appendChild(content);
                 if (suggestionsContainer && item) suggestionsContainer.appendChild(item);
@@ -890,63 +707,63 @@ function addSuggestionIcons() {
 function addDetailedScores(analysisData) {
     // التحقق من وجود قسم النتائج المفصل
     let scoresContainer = document.querySelector('.sentiment-score');
-
+    
     // إنشاء قسم النتائج المفصل إذا لم يكن موجودًا
     if (!scoresContainer) {
         scoresContainer = document.createElement('div');
         scoresContainer.className = 'sentiment-score';
-
+        
         // إضافة القسم بعد ملخص المشاعر
         const sentimentSummary = document.querySelector('.sentiment-summary');
         if (sentimentSummary && scoresContainer) sentimentSummary.appendChild(scoresContainer);
     }
-
+    
     // تفريغ الحاوية
     scoresContainer.innerHTML = '';
-
+    
     // إنشاء عناصر النتائج
     const positiveScore = document.createElement('div');
     positiveScore.className = 'sentiment-score-item positive-score';
-
+    
     const positiveValue = document.createElement('div');
     positiveValue.className = 'sentiment-score-value';
     positiveValue.textContent = `${analysisData.positive}%`;
-
+    
     const positiveLabel = document.createElement('div');
     positiveLabel.className = 'sentiment-score-label';
     positiveLabel.textContent = 'إيجابي';
-
+    
     if (positiveScore && positiveValue) positiveScore.appendChild(positiveValue);
     if (positiveScore && positiveLabel) positiveScore.appendChild(positiveLabel);
-
+    
     const negativeScore = document.createElement('div');
     negativeScore.className = 'sentiment-score-item negative-score';
-
+    
     const negativeValue = document.createElement('div');
     negativeValue.className = 'sentiment-score-value';
     negativeValue.textContent = `${analysisData.negative}%`;
-
+    
     const negativeLabel = document.createElement('div');
     negativeLabel.className = 'sentiment-score-label';
     negativeLabel.textContent = 'سلبي';
-
+    
     if (negativeScore && negativeValue) negativeScore.appendChild(negativeValue);
     if (negativeScore && negativeLabel) negativeScore.appendChild(negativeLabel);
-
+    
     const neutralScore = document.createElement('div');
     neutralScore.className = 'sentiment-score-item neutral-score';
-
+    
     const neutralValue = document.createElement('div');
     neutralValue.className = 'sentiment-score-value';
     neutralValue.textContent = `${analysisData.neutral}%`;
-
+    
     const neutralLabel = document.createElement('div');
     neutralLabel.className = 'sentiment-score-label';
     neutralLabel.textContent = 'محايد';
-
+    
     if (neutralScore && neutralValue) neutralScore.appendChild(neutralValue);
     if (neutralScore && neutralLabel) neutralScore.appendChild(neutralLabel);
-
+    
     // إضافة العناصر إلى الحاوية
     if (scoresContainer && positiveScore) scoresContainer.appendChild(positiveScore);
     if (scoresContainer && negativeScore) scoresContainer.appendChild(negativeScore);
@@ -963,9 +780,6 @@ contactForm.addEventListener('submit', (e) => {
 
 // تهيئة الصفحة
 window.addEventListener('load', () => {
-    // تحميل مفتاح API من متغيرات البيئة
-    loadApiKeyFromEnv();
-    
     // تعيين قيمة مفتاح API إذا كان موجودًا
     if (apiKey) {
         if (apiKeyInput) {
@@ -993,14 +807,6 @@ window.addEventListener('load', () => {
 // معالجة الأخطاء العامة
 window.addEventListener('error', (e) => {
     console.error('Global error:', e.error);
-    
-    // التحقق إذا كان الخطأ يتعلق بمفتاح API
-    if (e.error && e.error.message && e.error.message.includes('Incorrect API key')) {
-        if (typeof handleApiError === 'function') {
-            handleApiError(e.error);
-            return;
-        }
-    }
-    
     showNotification('حدث خطأ غير متوقع. يرجى تحديث الصفحة والمحاولة مرة أخرى.', 'error');
 });
+

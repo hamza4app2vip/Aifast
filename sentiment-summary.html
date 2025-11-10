@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملخص المشاعر | Sentiment Summary</title>
+
+    <!-- مكتبات CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap">
+
+    <!-- ملفات CSS المحلية -->
+    <link rel="stylesheet" href="ai-assistant.css">
+    <link rel="stylesheet" href="sentiment-summary.css">
+
+    <!-- متغيرات CSS -->
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-color-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --text-primary: #ffffff;
+            --text-secondary: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-card-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .content-section {
+            background: var(--glass-card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--glass-border);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group label {
+            font-weight: 500;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Tajawal', sans-serif;
+            resize: vertical;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .input-group button {
+            align-self: flex-start;
+        }
+
+        .results-section {
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .placeholder {
+            text-align: center;
+            opacity: 0.6;
+        }
+
+        .placeholder i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* Coming soon overlay */
+        .coming-soon-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .coming-soon-overlay.active { display: flex; }
+        .coming-soon-card {
+            background: var(--glass-card-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 28px;
+            width: min(520px, 92vw);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            text-align: center;
+            color: var(--text-primary);
+        }
+        .coming-soon-card .icon {
+            font-size: 42px;
+            margin-bottom: 14px;
+            color: var(--primary-color);
+        }
+        .coming-soon-card h3 { margin: 6px 0 10px; }
+        .coming-soon-card p { opacity: 0.85; margin: 0 0 18px; }
+        .btn {
+            cursor: pointer;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: var(--primary-color);
+            color: #fff;
+            transition: var(--transition);
+        }
+        .btn:hover { background: var(--primary-color-dark); }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ملخص المشاعر</h1>
+            <p>تحليل المشاعر من النصوص والصور باستخدام الذكاء الاصطناعي</p>
+        </header>
+
+        <main>
+            <section class="content-section input-section">
+                <h2 class="section-title">أدخل البيانات للتحليل</h2>
+
+                <div class="input-group">
+                    <label for="text-input">نص للتحليل:</label>
+                    <textarea id="text-input" placeholder="اكتب النص الذي تريد تحليل مشاعره هنا..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="image-input">صورة للتحليل:</label>
+                    <input type="file" id="image-input" accept="image/*">
+                </div>
+
+                <div class="input-group">
+                    <button id="analyze-btn" class="btn btn-primary">
+                        <i class="fas fa-brain"></i> تحليل المشاعر
+                    </button>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 class="section-title">ملخص المشاعر</h2>
+                <div id="sentiment-summary-container"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2023 ملخص المشاعر - جميع الحقوق محفوظة</p>
+            <p>يستخدم هذا الموقع أحدث تقنيات الذكاء الاصطناعي من OpenAI</p>
+        </footer>
+    </div>
+
+    <!-- مكتبات JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="utils.js"></script>
+    <script src="env-config.js"></script>
+    <script src="api-config-new.js"></script>
+    <script src="sentiment-summary.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const textInput = document.getElementById('text-input');
+            const imageInput = document.getElementById('image-input');
+
+            // Create "Face Analysis" button dynamically next to analyze button
+            const analyzeBtnWrapper = document.querySelector('.input-group');
+            let faceBtn = document.getElementById('face-analysis-btn');
+            if (analyzeBtnWrapper && !faceBtn) {
+                faceBtn = document.createElement('button');
+                faceBtn.id = 'face-analysis-btn';
+                faceBtn.className = 'btn';
+                faceBtn.style.marginInlineStart = '10px';
+                faceBtn.innerHTML = '<i class="fas fa-user"></i> تحليل الوجوه';
+                analyzeBtnWrapper.appendChild(faceBtn);
+            }
+
+            // تهيئة ملخص المشاعر
+            const sentimentSummary = new SentimentSummary('sentiment-summary-container');
+
+            // معالجة النقر على زر التحليل
+            analyzeBtn.addEventListener('click', () => {
+                const text = textInput.value.trim();
+                const imageFile = imageInput.files[0];
+
+                if (!text && !imageFile) {
+                    sentimentSummary.showNotification('الرجاء إدخال نص أو اختيار صورة للتحليل', 'error');
+                    return;
+                }
+
+                // في التطبيق الحقيقي، سيتم هنا إرسال البيانات إلى واجهة برمجة التطبيقات
+                // لهذا المثال، سنقوم بمحاكاة التحليل
+                sentimentSummary.analyzeSentiment();
+            });
+
+            // Coming soon overlay: build once and attach events
+            const overlay = document.createElement('div');
+            overlay.className = 'coming-soon-overlay';
+            overlay.id = 'coming-soon-overlay';
+            overlay.innerHTML = `
+                <div class="coming-soon-card" role="dialog" aria-modal="true">
+                    <div class="icon"><i class="fas fa-hourglass-half"></i></div>
+                    <h3>واجهة تحليل الوجوه - قريباً</h3>
+                    <p>نعمل حالياً على تجهيز هذه الميزة. ترقبونا!</p>
+                    <button id="close-coming-soon" class="btn">حسناً</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            const showComingSoon = () => overlay.classList.add('active');
+            const hideComingSoon = () => overlay.classList.remove('active');
+
+            const faceBtnDynamic = document.getElementById('face-analysis-btn');
+            if (faceBtnDynamic) faceBtnDynamic.addEventListener('click', showComingSoon);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) hideComingSoon(); });
+            document.addEventListener('click', (e) => { if (e.target && e.target.id === 'close-coming-soon') hideComingSoon(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideComingSoon(); });
+        });
+    </script>
+</body>
+</html>

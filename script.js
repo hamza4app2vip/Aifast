@@ -1,6 +1,27 @@
 // متغيرات عامة
-const API_KEY = "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";
+let API_KEY = "";
 const API_BASE_URL = "https://api.openai.com/v1";
+
+// الحصول على مفتاح API من متغيرات البيئة
+function loadApiKeyFromEnv() {
+    if (window.getEnvVar) {
+        API_KEY = window.getEnvVar('OPENAI_API_KEY');
+        if (!API_KEY && typeof showNotification === 'function') {
+            showNotification('لم يتم العثور على مفتاح API في ملف .env', 'error');
+        }
+    }
+}
+
+// الاستماع لحدث تعيين مفتاح API
+document.addEventListener('apiKeySet', (event) => {
+    API_KEY = event.detail.apiKey;
+    console.log('API key updated in script.js');
+});
+
+// تحميل مفتاح API من متغيرات البيئة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    loadApiKeyFromEnv();
+});
 
 // عناصر DOM
 const tabButtons = document.querySelectorAll('.tab-btn');
@@ -40,7 +61,7 @@ async function makeAPIRequest(endpoint, payload) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${window.API_KEY || API_KEY}`
             },
             body: JSON.stringify(payload)
         });
@@ -195,7 +216,7 @@ async function transcribeAudio(audioBlob) {
         const response = await fetch(`${API_BASE_URL}/audio/transcriptions`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${window.API_KEY || API_KEY}`
             },
             body: formData
         });
@@ -228,7 +249,7 @@ ttsBtn.addEventListener('click', async () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${window.API_KEY || API_KEY}`
             },
             body: JSON.stringify({
                 model: 'tts-1',

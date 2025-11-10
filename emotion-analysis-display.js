@@ -4,6 +4,10 @@
 
 // عرض نتائج تحليل المشاعر
 function displayEmotionResults(result, source) {
+    // Defensive default to avoid null/undefined crashes
+    if (!result || typeof result !== 'object') {
+        result = { emotion: 'neutral', confidence: 0, scores: { neutral: 1 }, explanation: '' };
+    }
     // الحصول على حاوية النتائج
     const resultContainer = document.getElementById('emotion-result');
 
@@ -31,7 +35,7 @@ function displayEmotionResults(result, source) {
         resultType.textContent = typeText;
     }
 
-    // تحديث المشاعر المهيمنة
+    // تحديث المشاعر المسيطرة
     const emotionValue = document.getElementById('emotion-value');
     if (emotionValue && result.emotion) {
         emotionValue.textContent = getEmotionNameInArabic(result.emotion);
@@ -92,6 +96,7 @@ function getEmotionNameInArabic(emotion) {
 
 // تحديث الرسم البياني للمشاعر
 function updateEmotionChart(result) {
+    try {
     const canvas = document.getElementById('emotion-chart');
 
     if (!canvas) return;
@@ -99,7 +104,7 @@ function updateEmotionChart(result) {
     // تدمج النتائج في تنسيق موحد
     let emotionsData = {};
 
-    if (result.scores && typeof result.scores === 'object') {
+    if (result && result.scores && typeof result.scores === 'object') {
         emotionsData = result.scores;
     } else if (result.emotion && result.confidence) {
         // إنشاء بيانات من مشاعر واحد
@@ -114,10 +119,20 @@ function updateEmotionChart(result) {
         });
 
         // تطبيع القيم
-        const total = Object.values(emotionsData).reduce((sum, val) => sum + val, 0);
-        Object.keys(emotionsData).forEach(key => {
-            emotionsData[key] = (emotionsData[key] / total) * 100;
-        });
+        const values = Object.values(emotionsData).map(v => Number(v) || 0);
+        const total = values.reduce((sum, val) => sum + val, 0);
+        if (total > 0) {
+            Object.keys(emotionsData).forEach(key => {
+                const v = Number(emotionsData[key]) || 0;
+                emotionsData[key] = (v / total) * 100;
+            });
+        }
+    }
+    } catch (err) { console.error('updateEmotionChart failed:', err); }
+
+    // Fallback to avoid undefined usage
+    if (!emotionsData || Object.keys(emotionsData).length === 0) {
+        emotionsData = { neutral: 100 };
     }
 
     // تحويل أسماء المشاعر إلى العربية

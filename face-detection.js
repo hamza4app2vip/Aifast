@@ -440,12 +440,12 @@ function displayFacesAnalysis(facesData) {
                 facesHTML += `</div>`;
             });
 
-            // عرض المشاعر المهيمنة
+            // عرض المشاعر المسيطرة
             const dominantEmotionArabic = getEmotionArabicName(dominantEmotion);
             const dominantEmotionIcon = getEmotionIcon(dominantEmotion);
             facesHTML += `<div class="dominant-emotion">`;
             facesHTML += `<i class="fas ${dominantEmotionIcon}"></i>`;
-            facesHTML += `المشاعر المهيمنة: ${dominantEmotionArabic}`;
+            facesHTML += `المشاعر المسيطرة: ${dominantEmotionArabic}`;
             facesHTML += `</div>`;
 
             facesHTML += '</div>';

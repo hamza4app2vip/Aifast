@@ -333,7 +333,7 @@ function displayEmotionResults(result, type) {
         else if (type === 'audio') resultType.textContent = 'نتيجة تحليل الصوت:';
     }
 
-    // تحديث المشاعر المهيمنة
+    // تحديث المشاعر المسيطرة
     const emotionValue = document.getElementById('emotion-value');
     if (emotionValue && result.emotion) {
         emotionValue.textContent = result.emotion;

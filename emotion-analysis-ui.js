@@ -417,7 +417,7 @@ function displayEmotionResults(result, source) {
         resultType.textContent = typeText;
     }
 
-    // تحديث المشاعر المهيمنة
+    // تحديث المشاعر المسيطرة
     const emotionValue = document.getElementById('emotion-value');
     if (emotionValue && result.emotion) {
         emotionValue.textContent = getEmotionNameInArabic(result.emotion);

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مساعد ذكي متعدد الوسائط | AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tippy.js@6/dist/tippy.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ai-assistant.css">
+    <link rel="stylesheet" href="sentiment-analysis.css">
+    <link rel="stylesheet" href="emotion-analysis.css">
+    <!-- Chart.js for sentiment summary charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="utils.js"></script>
+    <script src="env-config.js"></script>
+    <script src="api-config-new.js"></script>
+    <script src="api-initializer.js"></script>
+    <script src="api-key-config.js"></script>
+    <script src="api-key-handler-new.js"></script>
+    <script src="api-manager.js"></script>
+    <style>
+        /* Coming soon overlay */
+        .coming-soon-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .coming-soon-overlay.active { display: flex; }
+        .coming-soon-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(12px); border-radius: 16px; padding: 28px; width: min(520px, 92vw); box-shadow: 0 10px 40px rgba(0,0,0,0.25); text-align: center; color: #fff; }
+        .coming-soon-card .icon { font-size: 42px; margin-bottom: 14px; color: #6366f1; }
+        .coming-soon-card h3 { margin: 6px 0 10px; }
+        .coming-soon-card p { opacity: .9; margin: 0 0 18px; }
+        .coming-soon-card .btn { cursor: pointer; padding: 10px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: #6366f1; color: #fff; transition: all .2s ease; }
+        .coming-soon-card .btn:hover { background: #4f46e5; }
+    </style>
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>AI Assistant</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">الرئيسية</a></li>
+                <li><a href="#about">حول</a></li>
+                <li><a href="#features">المميزات</a></li>
+                <li><a href="#contact">اتصل بنا</a></li>
+            </ul>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- قسم البطل -->
+    <header class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="animate__animated animate__fadeInRight">مساعدك الذكي متعدد الوسائط</h1>
+                <p class="animate__animated animate__fadeInRight animate__delay-1s">محادثة ذكية، إنشاء صور، تحليل الصور، تحويل الكلام إلى نص، وتحويل النص إلى كلام</p>
+                <div class="hero-buttons animate__animated animate__fadeInRight animate__delay-2s">
+                    <a href="#services" class="btn btn-primary">ابدأ الآن</a>
+                    <a href="#features" class="btn btn-secondary">تعرف على المزيد</a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="images/hero-bg.svg" alt="مساعد ذكي">
+        </div>
+    </header>
+
+    <!-- قسم مفتاح API مخفي -->
+    <section class="api-section" style="display: none;">
+        <div class="container">
+            <div class="api-key-container">
+                <label for="apiKeyInput">مفتاح OpenAI API:</label>
+                <div class="api-key-input-group">
+                    <input type="password" id="apiKeyInput" placeholder="أدخل مفتاح API الخاص بك هنا" class="api-key-input">
+                    <button id="saveApiKeyBtn" class="btn btn-small">حفظ</button>
+                    <button id="toggleApiKeyBtn" class="btn btn-small"><i class="fas fa-eye"></i></button>
+                </div>
+                <small class="api-key-help">مطلوب مفتاح API صالح من OpenAI لاستخدام جميع خدمات الموقع. <a href="https://platform.openai.com/api-keys" target="_blank">الحصول على مفتاح</a></small>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الخدمات -->
+    <section id="services" class="services-section">
+        <div class="container">
+            <h2 class="section-title">خدماتنا</h2>
+
+            <!-- تبويبات الخدمات -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="chat"><i class="fas fa-comments"></i> دردشة</button>
+                <button class="tab-btn" data-tab="image-gen"><i class="fas fa-image"></i> إنشاء صور</button>
+                <button class="tab-btn" data-tab="speech-to-text"><i class="fas fa-microphone"></i> كلام → نص</button>
+                <button class="tab-btn" data-tab="text-to-speech"><i class="fas fa-volume-up"></i> نص → كلام</button>
+                <button class="tab-btn" data-tab="image-analysis"><i class="fas fa-search"></i> تحليل الصور</button>
+                <button class="tab-btn" data-tab="sentiment-analysis"><i class="fas fa-brain"></i> تحليل المشاعر</button>
+            </div>
+
+            <!-- محتوى التبويبات -->
+            <div class="tab-content active" id="chat">
+                <div class="glass-card">
+                    <div class="chat-header">
+                        <h3><i class="fas fa-comments"></i> دردشة مع المساعد الذكي</h3>
+                        <button id="new-chat-btn" class="btn btn-small btn-secondary"><i class="fas fa-plus"></i> محادثة جديدة</button>
+                    </div>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- الرسائل ستظهر هنا -->
+                            <div class="message ai-message animate__animated animate__fadeIn">
+                                <div class="message-content">
+                                    <p>مرحباً! أنا مساعدك الذكي، تم تطويري بواسطة المهندسة زينب. كيف يمكنني مساعدتك اليوم؟</p>
+                                </div>
+                                <div class="message-info">
+                                    <span class="message-time">الآن</span>
+                                </div>
+                            </div>
+                            
+
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا...">
+                            <button id="send-message"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="image-gen">
+                <div class="glass-card">
+                    <h3><i class="fas fa-image"></i> إنشاء صور من نص</h3>
+                    <div class="input-group">
+                        <textarea id="image-prompt" placeholder="اكتب وصفًا للصورة التي تريد إنشاءها..."></textarea>
+                        <button id="generate-image-btn" class="btn btn-primary"><i class="fas fa-magic"></i> إنشاء صورة</button>
+                    </div>
+                    <div class="result-container" id="image-result">
+                        <div class="placeholder">الصورة الناتجة ستظهر هنا</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="speech-to-text">
+                <div class="glass-card">
+                    <h3><i class="fas fa-microphone"></i> تحويل كلام إلى نص</h3>
+                    <div class="input-group">
+                        <button id="record-btn" class="btn-record"><i class="fas fa-microphone"></i> ابدأ التسجيل</button>
+                        <audio id="audio-player" controls style="display: none;"></audio>
+                    </div>
+                    <div class="result-container" id="speech-result">
+                        <div class="placeholder">النص المستخرج سيظهر هنا</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="text-to-speech">
+                <div class="glass-card">
+                    <h3><i class="fas fa-volume-up"></i> تحويل نص إلى كلام</h3>
+                    <div class="input-group">
+                        <textarea id="tts-text" placeholder="اكتب النص الذي تريد تحويله إلى صوت..."></textarea>
+                        <button id="tts-btn" class="btn btn-primary"><i class="fas fa-play"></i> تحويل لنطق</button>
+                    </div>
+                    <div class="result-container" id="tts-result">
+                        <div class="placeholder">الصوت الناتج سيظهر هنا</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="image-analysis">
+                <div class="glass-card">
+                    <h3><i class="fas fa-search"></i> تحليل الصور بالذكاء الاصطناعي المتقدم</h3>
+                    <div class="analysis-options">
+                        <div class="option-card active" data-option="general">
+                            <i class="fas fa-image"></i>
+                            <h4>تحليل عام</h4>
+                            <p>وصف شامل لمحتوى الصورة</p>
+                        </div>
+                        <div class="option-card" data-option="faces">
+                            <i class="fas fa-user-friends"></i>
+                            <h4>تحليل الوجوه</h4>
+                            <p>تحديد الوجوه والمشاعر</p>
+                        </div>
+                        <div class="option-card" data-option="objects">
+                            <i class="fas fa-cube"></i>
+                            <h4>تحديد الكائنات</h4>
+                            <p>تحديد وتصنيف العناصر</p>
+                        </div>
+                        <div class="option-card" data-option="text">
+                            <i class="fas fa-font"></i>
+                            <h4>استخراج النصوص</h4>
+                            <p>قراءة النصوص من الصورة</p>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="file-upload">
+                            <label for="image-upload" class="upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i> اختر صورة للتحليل
+                            </label>
+                            <input type="file" id="image-upload" accept="image/*">
+                            <div class="file-name" id="file-name">لم يتم اختيار ملف</div>
+                        </div>
+                        <div class="image-preview-container">
+                            <img id="preview-image" src="#" alt="معاينة الصورة" style="display: none;">
+                            <canvas id="face-detection-canvas" style="display: none;"></canvas>
+                        </div>
+                        <div class="analysis-question" id="general-question">
+                            <textarea id="image-question" placeholder="اكتب سؤالك عن الصورة (اختياري)..."></textarea>
+                        </div>
+                        <div class="analysis-question" id="faces-question" style="display: none;">
+                            <h4>خيارات تحليل الوجوه المتقدم:</h4>
+                            <div class="checkbox-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="detect-emotions" checked>
+                                    <span class="checkmark"></span>
+                                    تحليل المشاعر الدقيق
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="detect-age" checked>
+                                    <span class="checkmark"></span>
+                                    تقدير العمر
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="detect-gender" checked>
+                                    <span class="checkmark"></span>
+                                    تحديد الجنس
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="detect-features" checked>
+                                    <span class="checkmark"></span>
+                                    تحديد الميزات (نظارات، لحية، إلخ)
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="analyze-expressions">
+                                    <span class="checkmark"></span>
+                                    تحليل تعابير الوجه
+                                </label>
+                            </div>
+                        </div>
+                        <button id="analyze-btn" class="btn btn-primary"><i class="fas fa-search"></i> تحليل الصورة</button>
+                    </div>
+                    <div class="result-container" id="analysis-result">
+                        <div class="placeholder">نتيجة التحليل ستظهر هنا</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="sentiment-analysis">
+                <div class="glass-card">
+                    <h3><i class="fas fa-brain"></i> تحليل المشاعر المتقدم</h3>
+                    <div class="sentiment-intro">
+                        <p>اكتشف المشاعر والانفعالات الكامنة باستخدام تقنيات الذكاء الاصطناعي المتقدمة. يمكنك الآن تحليل المشاعر من النصوص والوجوه والصوت بدقة عالية.</p>
+                    </div>
+                    
+                    <!-- تبويبات تحليل المشاعر -->
+                    <div class="emotion-tabs">
+                        <button class="emotion-tab-btn active" data-emotion-tab="text">
+                            <i class="fas fa-font"></i> تحليل النصوص
+                        </button>
+                        <button class="emotion-tab-btn" data-emotion-tab="face">
+                            <i class="fas fa-user"></i> تحليل الوجوه
+                        </button>
+                        <button class="emotion-tab-btn" data-emotion-tab="audio">
+                            <i class="fas fa-microphone"></i> تحليل الصوت
+                        </button>
+                    </div>
+                    
+                    <!-- محتوى تبويبات تحليل المشاعر -->
+                    
+                    <!-- تحليل النصوص -->
+                    <div class="emotion-tab-content active" id="emotion-text">
+                        <div class="input-group">
+                            <div class="text-input-container">
+                                <textarea id="sentiment-text" placeholder="أدخل النص الذي تريد تحليل مشاعره هنا..."></textarea>
+                                <div class="text-info">
+                                    <span id="char-count">0 / 5000</span>
+                                    <span id="word-count">0 كلمة</span>
+                                </div>
+                            </div>
+                            <div class="analysis-options">
+                                <h4>خيارات التحليل:</h4>
+                                <div class="option-group">
+                                    <div class="option-card active" data-option="basic">
+                                        <i class="fas fa-chart-line"></i>
+                                        <h5>تحليل أساسي</h5>
+                                        <p>تحديد المشاعر الرئيسية (إيجابي، سلبي، محايد)</p>
+                                    </div>
+                                    <div class="option-card" data-option="detailed">
+                                        <i class="fas fa-microscope"></i>
+                                        <h5>تحليل مفصل</h5>
+                                        <p>تحديد المشاعر الدقيقة (سعادة، حزن، غضب، خوف، مفاجأة، إلخ)</p>
+                                    </div>
+                                    <div class="option-card" data-option="emotional">
+                                        <i class="fas fa-heart"></i>
+                                        <h5>تحليل عاطفي</h5>
+                                        <p>تحليل العواطف والانفعالات المعقدة</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="analyze-text-emotion-btn" class="btn btn-primary"><i class="fas fa-brain"></i> تحليل مشاعر النص</button>
+                        </div>
+                    </div>
+                    
+                    <!-- تحليل الوجوه -->
+                    <div class="emotion-tab-content" id="emotion-face">
+                        <div class="input-group">
+                            <div class="file-upload">
+                                <label for="emotion-face-upload" class="upload-label">
+                                    <i class="fas fa-cloud-upload-alt"></i> اختر صورة وجه للتحليل
+                                </label>
+                                <input type="file" id="emotion-face-upload" accept="image/*">
+                                <div class="file-name" id="emotion-face-file-name">لم يتم اختيار ملف</div>
+                            </div>
+                            <div class="image-preview-container">
+                                <img id="emotion-face-preview" src="#" alt="معاينة الصورة" style="display: none;">
+                                <canvas id="emotion-face-canvas" style="display: none;"></canvas>
+                            </div>
+                            <div class="analysis-options">
+                                <h4>خيارات التحليل:</h4>
+                                <div class="option-group">
+                                    <div class="option-card active" data-option="basic">
+                                        <i class="fas fa-smile"></i>
+                                        <h5>تحليل أساسي</h5>
+                                        <p>تحديد المشاعر الرئيسية (سعادة، حزن، غضب، إلخ)</p>
+                                    </div>
+                                    <div class="option-card" data-option="detailed">
+                                        <i class="fas fa-search"></i>
+                                        <h5>تحليل مفصل</h5>
+                                        <p>تحليل تعابير الوجه وميزات الوجه الدقيقة</p>
+                                    </div>
+                                    <div class="option-card" data-option="psychological">
+                                        <i class="fas fa-brain"></i>
+                                        <h5>تحليل نفسي</h5>
+                                        <p>تحليل الحالة النفسية والشخصية من تعابير الوجه</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="analyze-face-emotion-btn" class="btn btn-primary"><i class="fas fa-user"></i> تحليل مشاعر الوجه</button>
+                        </div>
+                    </div>
+                    
+                    <!-- تحليل الصوت -->
+                    <div class="emotion-tab-content" id="emotion-audio">
+                        <div class="input-group">
+                            <div class="audio-input-container">
+                                <button id="emotion-record-btn" class="btn-record"><i class="fas fa-microphone"></i> ابدأ التسجيل</button>
+                                <div class="audio-player-container" style="display: none;">
+                                    <audio id="emotion-audio-player" controls></audio>
+                                    <div class="audio-info">
+                                        <span id="audio-duration">0:00</span>
+                                        <button id="clear-audio-btn" class="btn btn-small"><i class="fas fa-trash"></i> مسح</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="file-upload">
+                                <label for="emotion-audio-upload" class="upload-label">
+                                    <i class="fas fa-file-audio"></i> أو اختر ملف صوتي
+                                </label>
+                                <input type="file" id="emotion-audio-upload" accept="audio/*">
+                                <div class="file-name" id="emotion-audio-file-name">لم يتم اختيار ملف</div>
+                            </div>
+                            <div class="analysis-options">
+                                <h4>خيارات التحليل:</h4>
+                                <div class="option-group">
+                                    <div class="option-card active" data-option="basic">
+                                        <i class="fas fa-volume-up"></i>
+                                        <h5>تحليل أساسي</h5>
+                                        <p>تحديد المشاعر الرئيسية من نبرة الصوت</p>
+                                    </div>
+                                    <div class="option-card" data-option="detailed">
+                                        <i class="fas fa-waveform"></i>
+                                        <h5>تحليل مفصل</h5>
+                                        <p>تحليل خصائص الصوت (نبرة، سرعة، إيقاع، إلخ)</p>
+                                    </div>
+                                    <div class="option-card" data-option="psychological">
+                                        <i class="fas fa-brain"></i>
+                                        <h5>تحليل نفسي</h5>
+                                        <p>تحليل الحالة النفسية والشخصية من خصائص الصوت</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="analyze-audio-emotion-btn" class="btn btn-primary"><i class="fas fa-microphone"></i> تحليل مشاعر الصوت</button>
+                        </div>
+                    </div>
+                    
+                    <!-- نتيجة التحليل -->
+                    <div class="result-container" id="emotion-result">
+                        <div class="placeholder">نتائج تحليل المشاعر ستظهر هنا</div>
+                        <div class="emotion-results" style="display: none;">
+                            <div class="result-header">
+                                <h4 id="result-type">نتيجة التحليل:</h4>
+                                <div class="result-summary">
+                                    <div class="emotion-label" id="dominant-emotion">
+                                        <span class="label">المشاعر المسيطرة:</span>
+                                        <span class="value" id="emotion-value">-</span>
+                                    </div>
+                                    <div class="confidence-score" id="emotion-confidence">
+                                        <span class="label">مستوى الثقة:</span>
+                                        <div class="progress-bar">
+                                            <div class="progress" id="confidence-progress"></div>
+                                        </div>
+                                        <span class="value" id="confidence-value">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="result-details">
+                                <div class="emotion-chart-container">
+                                    <canvas id="emotion-chart"></canvas>
+                                </div>
+                                <div class="emotion-explanation">
+                                    <h4>شرح النتائج:</h4>
+                                    <p id="emotion-explanation-text">سيظهر شرح مفصل للنتائج هنا</p>
+                                </div>
+                                <div class="emotion-suggestions">
+                                    <h4>اقتراحات:</h4>
+                                    <div id="emotion-suggestions-text">
+                                        <!-- سيتم ملؤها ديناميكيًا -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-actions">
+                                <button id="reanalyze-emotion-btn" class="btn btn-secondary">
+                                    <i class="fas fa-redo"></i> تحليل مرة أخرى
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم المميزات -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">مميزاتنا</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>محادثة ذكية</h3>
+                    <p>مساعد ذكي قادر على فهم سياق المحادثة والردود الطبيعية</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>إنشاء صور</h3>
+                    <p>تحويل الأفكار والنصوص إلى صور فنية مذهلة</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>تحويل الكلام إلى نص</h3>
+                    <p>تحويل التسجيلات الصوتية إلى نص بدقة عالية</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <h3>تحويل النص إلى كلام</h3>
+                    <p>تحويل النصوص إلى صوت طبيعي ونطق واضح</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>تحليل الصور</h3>
+                    <p>فهم محتوى الصور والإجابة على الأسئلة المتعلقة بها</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>تحليل المشاعر</h3>
+                    <p>تحليل المشاعر والعواطف في النصوص بدقة عالية</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                                                <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>متعدد المنصات</h3>
+                    <p>يعمل بشكل مثالي على جميع الأجهزة</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم عن التطبيق -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>عن المساعد الذكي</h2>
+                    <p>المساعد الذكي متعدد الوسائط هو تطبيق ويب متقدم يستخدم أحدث تقنيات الذكاء الاصطناعي من OpenAI لتوفير خدمات متعددة في مكان واحد. سواء كنت بحاجة للمساعدة في كتابة محتوى، أو إنشاء صور فنية، أو تحليل الصور، أو تحويل النصوص إلى أصوات، فإن تطبيقنا يوفر لك كل ما تحتاجه في واجهة سهلة الاستخدام.</p>
+                    <p>يستخدم التطبيق نماذج GPT-4o المتقدمة لضمان دقة وجودة النتائج، مع واجهة مستخدم عصرية وتصميم زجاجي فاخر يوفر تجربة استخدام ممتعة.</p>
+                </div>
+                <div class="about-image">
+                    <img src="images/about.svg" alt="حول التطبيق">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الاتصال -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2 class="section-title">تواصل معنا</h2>
+            <div class="contact-content">
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" id="name" placeholder="الاسم" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" placeholder="الرسالة" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">إرسال</button>
+                    </form>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>البريد الإلكتروني</h3>
+                            <p>zinab@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>الهاتف</h3>
+                            <p>+967 777888777</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h3>العنوان</h3>
+                            <p>اب , اليمن</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#">الخصوصية</a>
+                    <a href="#">الشروط والأحكام</a>
+                    <a href="#">خريطة الموقع</a>
+                </div>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 AI Assistant. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- شاشة التحميل -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <p>جاري الكتابة...</p>
+    </div>
+
+    <!-- الإشعارات -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <i class="fas fa-info-circle"></i>
+            <span id="notification-text">رسالة إشعار</span>
+        </div>
+        <button class="close-notification" id="close-notification">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- ملفات JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tippy.js@6"></script>
+    <script src="sentiment-summary-v2.js"></script>
+    <script src="complete-emotion-analysis.js"></script>
+    <script src="emotion-analysis-display.js"></script>
+    <script src="sentiment-summary.js"></script>
+    <script src="text-sentiment-analyzer.js"></script>
+    <!-- Arabic-aware lite analyzer overrides/augments the default -->
+    <script src="text-emotion-lite.js"></script>
+    <script src="advanced-text-analysis.js"></script>
+    <script src="api-text-analyzer.js"></script>
+    <script src="chat-new.js"></script>
+
+    <script src="ai-assistant-new.js"></script>
+    
+    <script>
+        // التعامل مع زر محادثة جديدة
+        document.addEventListener('DOMContentLoaded', function() {
+            const newChatBtn = document.getElementById('new-chat-btn');
+            if (newChatBtn) {
+                newChatBtn.addEventListener('click', function() {
+                    const chatMessages = document.getElementById('chat-messages');
+                    
+                    // إظهار رسالة تأكيد قبل مسح المحادثة
+                    if (chatMessages && chatMessages.children.length > 1) {
+                        if (confirm('هل أنت متأكد من أنك تريد بدء محادثة جديدة؟ سيتم حذف المحادثة الحالية.')) {
+                            // مسح جميع الرسائل ما عدا رسالة الترحيب
+                            while (chatMessages.children.length > 1) {
+                                chatMessages.removeChild(chatMessages.lastChild);
+                            }
+                            
+                            // إظهار إشعار للمستخدم
+                            if (typeof showNotification === 'function') {
+                                showNotification('تم بدء محادثة جديدة', 'success');
+                            }
+                        }
+                    } else {
+                        if (typeof showNotification === 'function') {
+                            showNotification('أنت بالفعل في محادثة جديدة', 'info');
+                        }
+                    }
+                });
+            }
+        });
+        
+
+                
+
+        
+
+        
+        // ربط دالة إرسال الرسالة مع مؤشر الكتابة
+        document.addEventListener('DOMContentLoaded', function() {
+            const sendButton = document.getElementById('send-message');
+            const chatInput = document.getElementById('chat-input');
+            
+            if (sendButton && chatInput) {
+                // تعديل دالة إرسال الرسالة
+                const originalSendFunction = window.sendMessage || function() {};
+                
+                window.sendMessage = function() {
+
+                    
+                    // استدعاء الدالة الأصلية
+                    originalSendFunction();
+                    
+
+                };
+                
+                // ربط الأحداث
+                sendButton.addEventListener('click', window.sendMessage);
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        window.sendMessage();
+                    }
+                });
+            }
+        });
+        
+        // دالة لإظهار الإشعارات
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            if (notification && notificationText) {
+                notificationText.textContent = message;
+                
+                // تعديل لون الإشعار حسب النوع
+                notification.className = 'notification show';
+                if (type === 'success') {
+                    notification.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.9))';
+                } else if (type === 'error') {
+                    notification.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))';
+                } else {
+                    notification.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9))';
+                }
+                
+                // إخفاء الإشعار بعد 3 ثوانٍ
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+        // إغلاق الإشعار عند النقر على زر الإغلاق
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeNotification = document.getElementById('close-notification');
+            if (closeNotification) {
+                closeNotification.addEventListener('click', function() {
+                    const notification = document.getElementById('notification');
+                    if (notification) {
+                        notification.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        // Face/Audio analysis — show "Coming soon" overlay (robust + delegated)
+        (function() {
+            const overlay = document.createElement('div');
+            overlay.className = 'coming-soon-overlay';
+            overlay.id = 'coming-soon-overlay';
+            overlay.innerHTML = `
+                <div class="coming-soon-card" role="dialog" aria-modal="true">
+                    <div class="icon"><i class="fas fa-hourglass-half"></i></div>
+                    <h3>واجهة قيد التطوير</h3>
+                    <p>ميزة تحليل الوجوه والصوت ستتوفر قريباً. ترقبونا!</p>
+                    <button id="close-coming-soon" class="btn">حسناً</button>
+                </div>`;
+            document.body.appendChild(overlay);
+
+            const show = () => overlay.classList.add('active');
+            const hide = () => overlay.classList.remove('active');
+
+            // Delegated handler ensures work even if DOM changes
+            const selectors = [
+                '.emotion-tab-btn[data-emotion-tab="face"]',
+                '.emotion-tab-btn[data-emotion-tab="audio"]',
+                '.tab-btn[data-tab="speech-to-text"]',
+                '#analyze-face-emotion-btn',
+                '#analyze-audio-emotion-btn',
+                '#emotion-record-btn',
+                '.option-card[data-option="faces"]'
+            ];
+
+            document.addEventListener('click', function(e) {
+                for (const sel of selectors) {
+                    const match = e.target && e.target.closest(sel);
+                    if (match) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        e.stopPropagation();
+                        show();
+                        return false;
+                    }
+                }
+            }, true); // capture phase to preempt other handlers
+
+            // Close handlers
+            document.addEventListener('click', (e) => {
+                if (e.target && (e.target.id === 'close-coming-soon')) hide();
+                if (e.target === overlay) hide();
+            });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+        })();
+    </script>
+</body>
+</html>

@@ -63,7 +63,7 @@ class SentimentSummary {
                         </div>
                     </div>
                     <div class="dominant-emotion">
-                        <div class="dominant-emotion-label">المشاعر المهيمنة:</div>
+                        <div class="dominant-emotion-label">المشاعر المسيطرة:</div>
                         <div class="dominant-emotion-value">لم يتم التحليل بعد</div>
                     </div>
                 </div>
@@ -218,7 +218,7 @@ class SentimentSummary {
 
     updateDominantEmotion() {
         try {
-            // البحث عن المشاعر المهيمنة
+            // البحث عن المشاعر المسيطرة
             let dominantEmotion = null;
             let maxValue = 0;
 
@@ -229,7 +229,7 @@ class SentimentSummary {
                 }
             });
 
-            // تحديث عرض المشاعر المهيمنة
+            // تحديث عرض المشاعر المسيطرة
             const dominantEmotionValue = document.querySelector('.dominant-emotion-value');
             if (dominantEmotionValue && dominantEmotion) {
                 dominantEmotionValue.innerHTML = `
@@ -238,7 +238,7 @@ class SentimentSummary {
                 `;
             }
         } catch (error) {
-            console.error('خطأ في تحديث المشاعر المهيمنة:', error);
+            console.error('خطأ في تحديث المشاعر المسيطرة:', error);
         }
     }
 
@@ -483,7 +483,7 @@ class SentimentSummary {
             // تحديث المخطط البياني
             this.updateChart();
 
-            // إعادة تعيين المشاعر المهيمنة
+            // إعادة تعيين المشاعر المسيطرة
             const dominantEmotionValue = document.querySelector('.dominant-emotion-value');
             if (dominantEmotionValue) {
                 dominantEmotionValue.textContent = 'لم يتم التحليل بعد';

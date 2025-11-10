@@ -149,24 +149,67 @@
 
 .emotion-explanation, .emotion-suggestions {
     margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .emotion-explanation h4, .emotion-suggestions h4 {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: var(--primary-color);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.emotion-explanation h4::before, .emotion-suggestions h4::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+}
+
+.emotion-explanation p {
+    line-height: 1.6;
+    font-size: 15px;
+    color: #e2e8f0;
+    text-align: justify;
 }
 
 .emotion-suggestions-text {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .suggestion-item {
     background-color: rgba(255, 255, 255, 0.05);
-    padding: 10px 15px;
+    padding: 12px 15px;
     border-radius: 8px;
     border-right: 3px solid var(--primary-color);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(5px);
+}
+
+.suggestion-item i {
+    color: var(--primary-color);
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.suggestion-item span {
+    flex: 1;
+    line-height: 1.5;
 }
 
 /* تنسيق خيارات التحليل */
