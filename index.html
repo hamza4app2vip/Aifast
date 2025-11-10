@@ -14,8 +14,23 @@
     <!-- Chart.js for sentiment summary charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="utils.js"></script>
-    <script src="api-key-handler.js"></script>
+    <script src="env-config.js"></script>
+    <script src="api-config-new.js"></script>
+    <script src="api-initializer.js"></script>
+    <script src="api-key-config.js"></script>
+    <script src="api-key-handler-new.js"></script>
     <script src="api-manager.js"></script>
+    <style>
+        /* Coming soon overlay */
+        .coming-soon-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .coming-soon-overlay.active { display: flex; }
+        .coming-soon-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(12px); border-radius: 16px; padding: 28px; width: min(520px, 92vw); box-shadow: 0 10px 40px rgba(0,0,0,0.25); text-align: center; color: #fff; }
+        .coming-soon-card .icon { font-size: 42px; margin-bottom: 14px; color: #6366f1; }
+        .coming-soon-card h3 { margin: 6px 0 10px; }
+        .coming-soon-card p { opacity: .9; margin: 0 0 18px; }
+        .coming-soon-card .btn { cursor: pointer; padding: 10px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: #6366f1; color: #fff; transition: all .2s ease; }
+        .coming-soon-card .btn:hover { background: #4f46e5; }
+    </style>
 </head>
 <body>
     <!-- شريط التنقل -->
@@ -103,17 +118,7 @@
                                 </div>
                             </div>
                             
-                            <!-- مؤشر جاري الكتابة -->
-                            <div class="typing-indicator" id="typing-indicator" style="display: none;">
-                                <div class="typing-message">
-                                    <div class="typing-dots">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
-                                    <span class="typing-text">جاري الكتابة...</span>
-                                </div>
-                            </div>
+
                         </div>
                         <div class="chat-input">
                             <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا...">
@@ -386,7 +391,7 @@
                                 <h4 id="result-type">نتيجة التحليل:</h4>
                                 <div class="result-summary">
                                     <div class="emotion-label" id="dominant-emotion">
-                                        <span class="label">المشاعر المهيمنة:</span>
+                                        <span class="label">المشاعر المسيطرة:</span>
                                         <span class="value" id="emotion-value">-</span>
                                     </div>
                                     <div class="confidence-score" id="emotion-confidence">
@@ -597,7 +602,12 @@
     <script src="emotion-analysis-display.js"></script>
     <script src="sentiment-summary.js"></script>
     <script src="text-sentiment-analyzer.js"></script>
+    <!-- Arabic-aware lite analyzer overrides/augments the default -->
+    <script src="text-emotion-lite.js"></script>
+    <script src="advanced-text-analysis.js"></script>
+    <script src="api-text-analyzer.js"></script>
     <script src="chat-new.js"></script>
+
     <script src="ai-assistant-new.js"></script>
     
     <script>
@@ -630,25 +640,11 @@
             }
         });
         
-        // دالة لإظهار مؤشر الكتابة
-        function showTypingIndicator() {
-            const typingIndicator = document.getElementById('typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.style.display = 'flex';
+
                 
-                // التمرير إلى أسفل المحادثة
-                const chatMessages = document.getElementById('chat-messages');
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-        }
+
         
-        // دالة لإخفاء مؤشر الكتابة
-        function hideTypingIndicator() {
-            const typingIndicator = document.getElementById('typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.style.display = 'none';
-            }
-        }
+
         
         // ربط دالة إرسال الرسالة مع مؤشر الكتابة
         document.addEventListener('DOMContentLoaded', function() {
@@ -656,18 +652,16 @@
             const chatInput = document.getElementById('chat-input');
             
             if (sendButton && chatInput) {
-                // تعديل دالة إرسال الرسالة لإظهار مؤشر الكتابة
+                // تعديل دالة إرسال الرسالة
                 const originalSendFunction = window.sendMessage || function() {};
                 
                 window.sendMessage = function() {
-                    // إظهار مؤشر الكتابة
-                    showTypingIndicator();
+
                     
                     // استدعاء الدالة الأصلية
                     originalSendFunction();
                     
-                    // إخفاء مؤشر الكتابة بعد فترة (لأغراض العرض التوضيحي)
-                    setTimeout(hideTypingIndicator, 3000);
+
                 };
                 
                 // ربط الأحداث
@@ -717,6 +711,56 @@
                 });
             }
         });
+    </script>
+    <script>
+        // Face/Audio analysis — show "Coming soon" overlay (robust + delegated)
+        (function() {
+            const overlay = document.createElement('div');
+            overlay.className = 'coming-soon-overlay';
+            overlay.id = 'coming-soon-overlay';
+            overlay.innerHTML = `
+                <div class="coming-soon-card" role="dialog" aria-modal="true">
+                    <div class="icon"><i class="fas fa-hourglass-half"></i></div>
+                    <h3>واجهة قيد التطوير</h3>
+                    <p>ميزة تحليل الوجوه والصوت ستتوفر قريباً. ترقبونا!</p>
+                    <button id="close-coming-soon" class="btn">حسناً</button>
+                </div>`;
+            document.body.appendChild(overlay);
+
+            const show = () => overlay.classList.add('active');
+            const hide = () => overlay.classList.remove('active');
+
+            // Delegated handler ensures work even if DOM changes
+            const selectors = [
+                '.emotion-tab-btn[data-emotion-tab="face"]',
+                '.emotion-tab-btn[data-emotion-tab="audio"]',
+                '.tab-btn[data-tab="speech-to-text"]',
+                '#analyze-face-emotion-btn',
+                '#analyze-audio-emotion-btn',
+                '#emotion-record-btn',
+                '.option-card[data-option="faces"]'
+            ];
+
+            document.addEventListener('click', function(e) {
+                for (const sel of selectors) {
+                    const match = e.target && e.target.closest(sel);
+                    if (match) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        e.stopPropagation();
+                        show();
+                        return false;
+                    }
+                }
+            }, true); // capture phase to preempt other handlers
+
+            // Close handlers
+            document.addEventListener('click', (e) => {
+                if (e.target && (e.target.id === 'close-coming-soon')) hide();
+                if (e.target === overlay) hide();
+            });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+        })();
     </script>
 </body>
 </html>
