@@ -1,5 +1,15 @@
 // تحليل النصوص باستخدام API
 document.addEventListener('DOMContentLoaded', function() {
+    const API_BASE_URL = (() => {
+        try {
+            if (typeof window !== 'undefined' && window.OPENAI_PROXY_URL) return window.OPENAI_PROXY_URL;
+            const host = (typeof window !== 'undefined') ? window.location.hostname : '';
+            const isLocal = host === 'localhost' || host === '127.0.0.1';
+            return isLocal ? 'https://api.openai.com/v1' : '/api/openai-proxy/v1';
+        } catch (_) {
+            return 'https://api.openai.com/v1';
+        }
+    })();
     // الحصول على مفتاح API (بدون إزعاج المستخدم)
     function getApiKey() {
         // 1) مفتاح عام إن وُجد
@@ -35,17 +45,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // تحليل النص باستخدام OpenAI API
     async function analyzeTextWithAPI(text) {
         const apiKey = getApiKey();
-        if (!apiKey) {
-            throw new Error('مفتاح API غير متوفر');
+        const usingProxy = typeof API_BASE_URL === 'string' && API_BASE_URL.indexOf('/api/openai-proxy') !== -1;
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (!usingProxy) {
+            if (!apiKey) throw new Error('مفتاح API غير متوفر');
+            headers['Authorization'] = `Bearer ${apiKey}`;
         }
 
-        // إنشاء طلب API
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch(`${API_BASE_URL}/chat/completions`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
+            headers,
             body: JSON.stringify({
                 model: 'gpt-4o',
                 messages: [

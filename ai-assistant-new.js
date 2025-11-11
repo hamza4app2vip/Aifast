@@ -1,6 +1,16 @@
 // متغيرات عامة
 let apiKey = '';
-const API_BASE_URL = (typeof window !== 'undefined' && window.OPENAI_PROXY_URL) ? window.OPENAI_PROXY_URL : "https://api.openai.com/v1";
+const API_BASE_URL = (() => {
+  try {
+    if (typeof window !== 'undefined' && window.OPENAI_PROXY_URL) return window.OPENAI_PROXY_URL;
+    const host = (typeof window !== 'undefined') ? window.location.hostname : '';
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    // في الإنتاج استخدم مسار الوكيل النسبي
+    return isLocal ? 'https://api.openai.com/v1' : '/api/openai-proxy/v1';
+  } catch (_) {
+    return 'https://api.openai.com/v1';
+  }
+})();
 
 // استمع لحدث تعيين مفتاح API لضمان مزامنة المفتاح بعد تحميل .env أو إدخال المستخدم في GitHub Pages
 document.addEventListener('apiKeySet', function (e) {

@@ -80,13 +80,11 @@ async function loadEnv() {
             console.log('API key available for use');
         } else {
             console.warn('OPENAI_API_KEY not found or invalid');
-            showApiWarning();
         }
 
         return envVars;
     } catch (error) {
         console.error('Error loading environment variables:', error);
-        showApiWarning();
         return {};
     }
 }
@@ -192,15 +190,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         await loadEnv();
         if (Object.keys(envVars).length === 0) {
             console.warn('No environment variables loaded');
-            showApiWarning();
         } else if (!envVars['OPENAI_API_KEY']) {
             console.warn('OPENAI_API_KEY not found in environment variables');
-            showApiWarning();
         } else {
             console.log('Environment variables loaded successfully, including OPENAI_API_KEY');
         }
     } catch (error) {
         console.error('Error loading environment variables:', error);
-        showApiWarning();
     }
 });

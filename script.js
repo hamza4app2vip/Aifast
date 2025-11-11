@@ -1,14 +1,20 @@
 // متغيرات عامة
 let API_KEY = "";
-const API_BASE_URL = "https://api.openai.com/v1";
+const API_BASE_URL = (() => {
+  try {
+    if (typeof window !== 'undefined' && window.OPENAI_PROXY_URL) return window.OPENAI_PROXY_URL;
+    const host = (typeof window !== 'undefined') ? window.location.hostname : '';
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    return isLocal ? 'https://api.openai.com/v1' : '/api/openai-proxy/v1';
+  } catch (_) {
+    return 'https://api.openai.com/v1';
+  }
+})();
 
 // الحصول على مفتاح API من متغيرات البيئة
 function loadApiKeyFromEnv() {
     if (window.getEnvVar) {
         API_KEY = window.getEnvVar('OPENAI_API_KEY');
-        if (!API_KEY && typeof showNotification === 'function') {
-            showNotification('لم يتم العثور على مفتاح API في ملف .env', 'error');
-        }
     }
 }
 

@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  command = ""
+
+[[redirects]]
+  from = "/api/openai-proxy/*"
+  to = "/.netlify/functions/openai-proxy/:splat"
+  status = 200
+
