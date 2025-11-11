@@ -1,10 +1,31 @@
 // متغيرات عامة
 let apiKey = '';
+
+// استمع لحدث تعيين مفتاح API لضمان مزامنة المفتاح بعد تحميل .env
+document.addEventListener('apiKeySet', function (e) {
+    try {
+        const incoming = e && e.detail && e.detail.apiKey ? String(e.detail.apiKey).trim() : '';
+        if (incoming && incoming.startsWith('sk-')) {
+            apiKey = incoming;
+            try { localStorage.setItem('openai_api_key', apiKey); } catch (_) {}
+            console.log('API key received via apiKeySet event');
+        }
+    } catch (_) {}
+});
 const API_BASE_URL = "https://api.openai.com/v1";
 
 // تحميل مفتاح API عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
-    loadApiKeyFromEnv();
+    // محاولة التحميل فوراً
+    const loaded = loadApiKeyFromEnv();
+    // إذا لم يتم التحميل (بسبب سباق التحميل)، أعد المحاولة بعد قليل
+    if (!loaded) {
+        setTimeout(() => {
+            if (!apiKey) {
+                loadApiKeyFromEnv();
+            }
+        }, 300);
+    }
 });
 
 // دالة لتحميل مفتاح API من متغيرات البيئة
