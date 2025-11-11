@@ -29,6 +29,16 @@
         .coming-soon-card p { opacity: .9; margin: 0 0 18px; }
         .coming-soon-card .btn { cursor: pointer; padding: 10px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: #6366f1; color: #fff; transition: all .2s ease; }
         .coming-soon-card .btn:hover { background: #4f46e5; }
+        
+        /* Typing indicator */
+        .typing-dots { display: flex; align-items: center; gap: 5px; }
+        .typing-dots span { width: 8px; height: 8px; border-radius: 50%; background-color: rgba(255,255,255,0.7); animation: typing 1.4s infinite; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
     </style>
 </head>
 <body>
@@ -592,9 +602,7 @@
     <script src="text-emotion-lite.js"></script>
     <script src="advanced-text-analysis.js"></script>
     <script src="api-text-analyzer.js"></script>
-    <script src="chat-new.js"></script>
-
-    <script src="ai-assistant-new.js"></script>
+    <script src="chat-manager.js"></script>
     <script>
         // كتم أي إشعارات تتعلق بطلب إدخال مفتاح API لضمان تجربة نظيفة
         (function () {
