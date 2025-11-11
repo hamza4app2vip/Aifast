@@ -1,6 +1,6 @@
 // متغيرات عامة
 let apiKey = '';
-const API_BASE_URL = "https://api.openai.com/v1";
+const API_BASE_URL = (typeof window !== 'undefined' && window.OPENAI_PROXY_URL) ? window.OPENAI_PROXY_URL : "https://api.openai.com/v1";
 
 // استمع لحدث تعيين مفتاح API لضمان مزامنة المفتاح بعد تحميل .env أو إدخال المستخدم في GitHub Pages
 document.addEventListener('apiKeySet', function (e) {

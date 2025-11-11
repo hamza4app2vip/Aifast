@@ -1,20 +1,34 @@
 // تحليل النصوص باستخدام API
 document.addEventListener('DOMContentLoaded', function() {
-    // الحصول على مفتاح API
+    // الحصول على مفتاح API (بدون إزعاج المستخدم)
     function getApiKey() {
-        // التحقق من وجود مفتاح API
+        // 1) مفتاح عام إن وُجد
         if (typeof window.apiKey !== 'undefined' && window.apiKey) {
             return window.apiKey;
         }
 
-        // محاولة الحصول على مفتاح API من التخزين المحلي
-        const savedApiKey = localStorage.getItem('openai_api_key');
-        if (savedApiKey) {
-            return savedApiKey;
+        // 2) التخزين المحلي
+        try {
+            const savedApiKey = localStorage.getItem('openai_api_key');
+            if (savedApiKey) return savedApiKey;
+        } catch (_) {}
+
+        // 3) متغيرات البيئة المحمّلة عبر env-loader
+        if (typeof window.getEnvVar === 'function') {
+            const envKey = window.getEnvVar('OPENAI_API_KEY');
+            if (envKey) {
+                try { localStorage.setItem('openai_api_key', envKey); } catch (_) {}
+                return envKey;
+            }
         }
 
-        // عرض رسالة للمستخدم لإدخال مفتاح API
-        showNotification('يرجى إدخال مفتاح OpenAI API لاستخدام تحليل النصوص المتقدم', 'warning');
+        // 4) متغير عام اختياري
+        if (typeof window.OPENAI_API_KEY === 'string' && window.OPENAI_API_KEY) {
+            try { localStorage.setItem('openai_api_key', window.OPENAI_API_KEY); } catch (_) {}
+            return window.OPENAI_API_KEY;
+        }
+
+        // بدون رسائل تنبيه — يُعاد null ليتم التعامل معه أعلى السلسلة
         return null;
     }
 

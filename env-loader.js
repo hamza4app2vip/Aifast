@@ -7,7 +7,12 @@ let envVars = {};
 
 async function loadEnv() {
     try {
-        const candidatePaths = ['.env', '/.env', 'env', '/env', 'config.env'];
+        // لأسباب أمنية: لا نقوم بجلب ملفات .env أو ما شابهها إلا في بيئة التطوير المحلية
+        const isLocalhost = typeof window !== 'undefined' && (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        );
+        const candidatePaths = isLocalhost ? ['.env', '/.env', 'env', '/env'] : [];
         let envText = '';
         let loadedFrom = '';
 
@@ -40,7 +45,7 @@ async function loadEnv() {
             });
             console.log(`Environment variables loaded from ${loadedFrom}`);
         } else {
-            console.warn('Could not fetch .env; will try fallback sources');
+            // في الإنتاج (GitHub Pages) لن نحاول جلب .env؛ سنعتمد على المصادر الاحتياطية فقط
         }
 
         // Fallback 1: query parameter
@@ -199,4 +204,3 @@ document.addEventListener('DOMContentLoaded', async function () {
         showApiWarning();
     }
 });
-

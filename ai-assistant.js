@@ -12,7 +12,7 @@ document.addEventListener('apiKeySet', function (e) {
         }
     } catch (_) {}
 });
-const API_BASE_URL = "https://api.openai.com/v1";
+const API_BASE_URL = (typeof window !== 'undefined' && window.OPENAI_PROXY_URL) ? window.OPENAI_PROXY_URL : "https://api.openai.com/v1";
 
 // تحميل مفتاح API عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
