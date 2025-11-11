@@ -9,7 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // دالة لتحميل مفتاح API من متغيرات البيئة
 function loadApiKeyFromEnv() {
-    // تحقق دائماً من متغيرات البيئة
+    // محاولة الحصول على مفتاح API من التخزين المحلي أولاً
+    const localApiKey = localStorage.getItem('openai_api_key');
+    if (localApiKey) {
+        apiKey = localApiKey;
+        console.log('API key loaded from localStorage');
+        return true;
+    }
+    
+    // إذا لم يكن هناك مفتاح في التخزين المحلي، حاول من متغيرات البيئة
     if (window.getEnvVar) {
         const envApiKey = window.getEnvVar('OPENAI_API_KEY');
         if (envApiKey) {
@@ -18,23 +26,15 @@ function loadApiKeyFromEnv() {
             console.log('API key loaded from .env file');
             return true;
         } else {
-            // إذا لم يتم العثور على مفتاح API في متغيرات البيئة، حاول من التخزين المحلي
-            const localApiKey = localStorage.getItem('openai_api_key');
-            if (localApiKey) {
-                apiKey = localApiKey;
-                console.log('API key loaded from localStorage');
-                return true;
-            } else {
-                if (typeof showNotification === 'function') {
-                    showNotification('لم يتم العثور على مفتاح API في ملف .env', 'error');
-                }
-                return false;
-            }
+            console.log('API key not found in .env file');
         }
     } else {
-        console.error('getEnvVar function is not available');
-        return false;
+        console.log('getEnvVar function is not available');
     }
+    
+    // إذا لم يتم العثور على مفتاح API في أي مكان، لا تعرض رسالة خطأ هنا
+    // سيتم عرض واجهة إدخال المفتاح من خلال github-env-config.js
+    return false;
 }
 
 // عناصر DOM
