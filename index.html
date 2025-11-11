@@ -14,7 +14,7 @@
     <!-- Chart.js for sentiment summary charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="utils.js"></script>
-    <script src="github-env-config.js"></script>
+    <script src="env-config-final.js"></script>
     <script src="api-config-new.js"></script>
     <script src="api-initializer.js"></script>
     <script src="api-key-config.js"></script>
@@ -69,20 +69,7 @@
         </div>
     </header>
 
-    <!-- قسم مفتاح API مخفي -->
-    <section class="api-section" style="display: none;">
-        <div class="container">
-            <div class="api-key-container">
-                <label for="apiKeyInput">مفتاح OpenAI API:</label>
-                <div class="api-key-input-group">
-                    <input type="password" id="apiKeyInput" placeholder="أدخل مفتاح API الخاص بك هنا" class="api-key-input">
-                    <button id="saveApiKeyBtn" class="btn btn-small">حفظ</button>
-                    <button id="toggleApiKeyBtn" class="btn btn-small"><i class="fas fa-eye"></i></button>
-                </div>
-                <small class="api-key-help">مطلوب مفتاح API صالح من OpenAI لاستخدام جميع خدمات الموقع. <a href="https://platform.openai.com/api-keys" target="_blank">الحصول على مفتاح</a></small>
-            </div>
-        </div>
-    </section>
+
 
     <!-- قسم الخدمات -->
     <section id="services" class="services-section">
