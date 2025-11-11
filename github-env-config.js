@@ -416,3 +416,39 @@ document.addEventListener('DOMContentLoaded', async function() {
 window.loadEnv = loadEnv;
 window.getEnvVar = getEnvVar;
 window.showNotification = showNotification;
+// Fallbacks for GitHub Pages: expose modal function and handle save click
+;(function () {
+    try {
+        if (typeof window.showApiKeyInputModal !== 'function' && typeof showApiKeyInputModal === 'function') {
+            window.showApiKeyInputModal = showApiKeyInputModal;
+        }
+    } catch (_) {}
+
+    if (!window.__apiKeySaveHandlerAttached) {
+        window.__apiKeySaveHandlerAttached = true;
+        document.addEventListener('click', function (ev) {
+            const t = ev && ev.target ? ev.target : null;
+            if (!t) return;
+            const isSave = (t.id === 'api-key-save') || (typeof t.closest === 'function' && t.closest('#api-key-save'));
+            if (isSave) {
+                try {
+                    const input = document.getElementById('api-key-input');
+                    const key = input ? String(input.value || '').trim() : '';
+                    if (key && key.startsWith('sk-')) {
+                        try { localStorage.setItem('openai_api_key', key); } catch (_) {}
+                        window.API_KEY = key;
+                        window.emotionAnalysisAPI_KEY = key;
+                        window.faceEmotionAPI_KEY = key;
+                        window.audioEmotionAPI_KEY = key;
+                        try {
+                            const evt = new CustomEvent('apiKeySet', { detail: { apiKey: key } });
+                            document.dispatchEvent(evt);
+                        } catch (_) {}
+                        const modal = document.getElementById('api-key-modal');
+                        if (modal && modal.parentNode) modal.parentNode.removeChild(modal);
+                    }
+                } catch (_) {}
+            }
+        });
+    }
+})();

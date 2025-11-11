@@ -2,9 +2,42 @@
 let apiKey = '';
 const API_BASE_URL = "https://api.openai.com/v1";
 
+// استمع لحدث تعيين مفتاح API لضمان مزامنة المفتاح بعد تحميل .env أو إدخال المستخدم في GitHub Pages
+document.addEventListener('apiKeySet', function (e) {
+    try {
+        const incoming = e && e.detail && e.detail.apiKey ? String(e.detail.apiKey).trim() : '';
+        if (incoming && incoming.startsWith('sk-')) {
+            apiKey = incoming;
+            try { localStorage.setItem('openai_api_key', apiKey); } catch (_) {}
+            console.log('API key received via apiKeySet event');
+        }
+    } catch (_) {}
+});
+
 // تحميل مفتاح API عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
-    loadApiKeyFromEnv();
+    // دعم تمرير المفتاح عبر معامل ?api_key=sk-...
+    try {
+        const url = new URL(window.location.href);
+        const qpKey = url.searchParams.get('api_key');
+        if (qpKey && qpKey.trim().startsWith('sk-')) {
+            apiKey = qpKey.trim();
+            try { localStorage.setItem('openai_api_key', apiKey); } catch (_) {}
+            try {
+                const evt = new CustomEvent('apiKeySet', { detail: { apiKey } });
+                document.dispatchEvent(evt);
+            } catch (_) {}
+        }
+    } catch (_) {}
+
+    const loaded = loadApiKeyFromEnv();
+    if (!loaded) {
+        setTimeout(() => {
+            if (!apiKey) {
+                loadApiKeyFromEnv();
+            }
+        }, 300);
+    }
 });
 
 // دالة لتحميل مفتاح API من متغيرات البيئة
@@ -191,6 +224,10 @@ function checkApiKey() {
     
     if (!apiKey) {
         showNotification('الرجاء إدخال مفتاح OpenAI API أولاً', 'warning');
+        // على GitHub Pages اعرض نافذة إدخال المفتاح عند الحاجة
+        if (typeof showApiKeyInputModal === 'function') {
+            try { showApiKeyInputModal(); } catch (_) {}
+        }
         return false;
     }
     return true;
