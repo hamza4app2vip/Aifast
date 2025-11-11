@@ -14,7 +14,7 @@
     <!-- Chart.js for sentiment summary charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- تحميل متغيرات البيئة بشكل متوافق مع GitHub Pages (يدعم config.env) -->
-    <script src="env-loader.js"></script>
+    <script src="env-manager.js"></script>
     <script>
         // حمل متغيرات البيئة مبكرًا لضمان توفر المفتاح قبل استخدامه
         try { if (typeof window.loadEnv === 'function') { window.loadEnv(); } } catch (e) { console.warn(e); }
@@ -622,6 +622,26 @@
             setTimeout(wrap, 0);
             setTimeout(wrap, 200);
         })();
+        
+        // تعريف متغير OPENAI_API_KEY
+        window.OPENAI_API_KEY = '';
+        
+        // تحميل مفتاح API من التخزين المحلي أو متغيرات البيئة
+        document.addEventListener('DOMContentLoaded', function() {
+            // محاولة الحصول على مفتاح API من التخزين المحلي
+            let apiKey = localStorage.getItem('openai_api_key');
+            
+            // إذا لم يكن موجوداً، حاول من متغيرات البيئة
+            if (!apiKey && window.getEnvVar) {
+                apiKey = window.getEnvVar('OPENAI_API_KEY');
+                if (apiKey) {
+                    localStorage.setItem('openai_api_key', apiKey);
+                }
+            }
+            
+            // تعيين المفتاح في المتغير العام
+            window.OPENAI_API_KEY = apiKey || '';
+        });
     </script>
     
     <script>
