@@ -1,11 +1,28 @@
 {
-  "name": "env-static-server",
-  "private": true,
-  "type": "module",
-  "version": "0.0.0",
+  "name": "ai-assistant",
+  "version": "1.0.0",
+  "description": "مساعد ذكي متعدد الوسائط",
+  "main": "ai-assistant.html",
   "scripts": {
     "start": "node serve.mjs",
-    "start:port": "node -e \"process.env.PORT=process.argv[1];import('./serve.mjs')\""
+    "start:port": "node serve.mjs --port",
+    "build": "npm ci && npm run build:assets",
+    "build:assets": "mkdir -p dist && cp *.html *.css *.js *.svg dist/ && mkdir -p dist/images && cp images/* dist/images/ && mkdir -p dist/fonts && cp fonts/* dist/fonts/"
+  },
+  "keywords": [
+    "ai",
+    "assistant",
+    "openai",
+    "chatbot",
+    "gpt",
+    "image-generation",
+    "text-analysis",
+    "arabic"
+  ],
+  "author": "Zinab",
+  "license": "MIT",
+  "devDependencies": {
+    "node-static": "^1.2.3"
   }
 }
 
